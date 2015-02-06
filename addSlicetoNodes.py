@@ -7,7 +7,7 @@ xmlrpclib.ServerProxy('https://www.planet-lab.org/PLCAPI/')
 auth={}
 # change to your credentials
 auth['Username']="frhjing@interchange.ubc.ca"
-auth['AuthString']="fahrenheit4"
+auth['AuthString']="#"
 auth['AuthMethod']="password"
 
 f = open('listOfNodes.txt','r')

@@ -10,9 +10,9 @@ auth['Username']="frhjing@interchange.ubc.ca"
 auth['AuthString']="#"
 auth['AuthMethod']="password"
 
-nodes = api_server.GetNodes(auth)
+nodes = api_server.GetNodes(auth, {'boot_state': 'boot'}, ["hostname"])
 
-len(nodes)
+print len(nodes)
 
 hostnames = map(operator.itemgetter("hostname"), nodes)
 
