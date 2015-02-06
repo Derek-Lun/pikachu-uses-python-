@@ -7,7 +7,7 @@ xmlrpclib.ServerProxy('https://www.planet-lab.org/PLCAPI/')
 auth={}
 auth['Username']="frhjing@interchange.ubc.ca"
 # fill with your password
-auth['AuthString']="#"
+auth['AuthString']="fahrenheit4"
 auth['AuthMethod']="password"
 
 nodes = api_server.GetNodes(auth)
@@ -16,7 +16,7 @@ len(nodes)
 
 hostnames = map(operator.itemgetter("hostname"), nodes)
 
-f = open('myfile.txt','w')
+f = open('listOfNodes.txt','w')
 
 for host in hostnames:
 	f.write(host + '\n')
