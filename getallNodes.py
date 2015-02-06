@@ -20,5 +20,6 @@ f = open('listOfNodes.txt','w')
 
 for host in hostnames:
 	f.write(host + '\n')
+	#print (host)
 
 f.close()
