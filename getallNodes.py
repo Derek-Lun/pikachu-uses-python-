@@ -7,7 +7,7 @@ xmlrpclib.ServerProxy('https://www.planet-lab.org/PLCAPI/')
 auth={}
 # change to your credentials
 auth['Username']="frhjing@interchange.ubc.ca"
-auth['AuthString']="#"
+auth['AuthString']="admin"
 auth['AuthMethod']="password"
 
 nodes = api_server.GetNodes(auth, {'boot_state': 'boot'}, ["hostname"])
