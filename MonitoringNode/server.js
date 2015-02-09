@@ -63,10 +63,8 @@ var hierarchal = function (list, tier) {
   var groups = _.chunk(list, [size=Math.pow(length, tiers - 1)])
 
   _.each(groups, function(group) {
-
-  })
-
-  console.log(groups);
+    console.log(group);
+  });
 }
 
 var getDataFromHost = function (host) {
