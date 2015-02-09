@@ -5,6 +5,7 @@ var LineByLineReader = require('line-by-line');
 var _ = require('lodash');
 var os = require('os');
 var async = require('async');
+var dns = require('dns');
  
 var port = 5627;
  
@@ -12,7 +13,12 @@ var server = dgram.createSocket("udp4");
 server.bind(port);
 
 var result = [];
-var timeouts = [];
+var timeout;
+var timeout_period;
+var min_timeout = 1000;
+
+var parent_host;
+var parent_port;
 
 var master = !!process.argv[2]
 
@@ -31,7 +37,9 @@ if (master) {
       process.exit(1);
     }
 
-    hierarchal(nodes, tiers);
+    var grpnum = Math.ceil(Math.pow(list.length, 1/tier));
+
+    hierarchal(nodes, tiers, grpnum);
   });
 }
 
@@ -51,22 +59,27 @@ server.on("message", function (msg, rinfo) {
           parseStatusResponse(reply, rinfo);
           break;
       case "ContactGroupToGetStatus":
-          hierarchal(reply.data, reply.tier);
+          hierarchal(reply.data, reply.tier, reply.grpnum, rinfo);
       default:
           console.log("wrong command");
   }
 
 });
 
-var hierarchal = function (list, tier) {
+var hierarchal = function (list, tier, grpnum, rinfo) {
+
+  parent_host = rinfo.address;
+  parent_port = rinfo.port;
+
   if (tier <= 1) {
     _.each(list, function (host) {
       getDataFromHost(host);
     })
   } else {
-    var length = Math.ceil(Math.pow(list.length, 1/tier));
+    timeout_period = min_timeout * tier;
 
-    var groups = _.chunk(list, [size=Math.pow(length, tier - 1)])
+    var grouplength = Math.ceil(list / grpnum);
+    var groups = _.chunk(list, [size=grouplength])
 
     var sub_master = async.map(groups, function(group, done) {
       async.detect(group, function (host, callback) {
@@ -79,16 +92,14 @@ var hierarchal = function (list, tier) {
     }, function (err, results) {
       _.each(results, function (submaster, index) {
         if (submaster){
-          getDataFromHost(submaster, groups[index], tier-1);
+          getDataFromHost(submaster, groups[index], tier-1, grpnum);
         } else {
           entireBranchisDead(groups[index]);
         }
       });
     });
   }
-
 }
-
 
 var entireBranchisDead = function (grouplist) {
   _.each(grouplist, function (host) {
@@ -99,10 +110,22 @@ var entireBranchisDead = function (grouplist) {
   })
 }
 
+var sendDataBackToParent = function () {
+  var current = {}
+
+  current.data.used = os.totalmem() - os.freemem();
+  current.data.free = os.freemem();
+  current.data.uptime = os.uptime();
+  current.data.loadavg = os.loadavg();
+
+
+}
+
 var getDataFromHost = function (host, grouplist, tier) {
   var status = {
     hostname: host
   }
+
   ping.sys.probe(host, function (isAlive) {
       var msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
       var req = {}
@@ -111,7 +134,8 @@ var getDataFromHost = function (host, grouplist, tier) {
         req = {
           command: "ContactGroupToGetStatus",
           data: grouplist,
-          tier: tier
+          tier: tier,
+          grpnum: grpnum
         }
       } else {
         req = {
@@ -128,6 +152,12 @@ var getDataFromHost = function (host, grouplist, tier) {
         server.send(request, 0, request.length, port, host, function(err, bytes) {
             if (err) throw err;
             console.log('UDP message sent to ' + host +':'+ port);
+
+            if (timeout) {
+              clearTimeout(timeout) 
+            }
+
+            timeout = setTimeout(function(){ alert("Hello"); }, 1000);
         })
       }
   });
@@ -155,7 +185,7 @@ var respondWithStatus = function (request, rinfo) {
 
   var reply = new Buffer(JSON.stringify(request));
 
-  client.send(reply, 0, reply.length, rinfo.port, rinfo.address, function(err, bytes) {
+  server.send(reply, 0, reply.length, rinfo.port, rinfo.address, function(err, bytes) {
       if (err) throw err;
       console.log('UDP message sent to ' + rinfo.address +':'+ rinfo.port);
   });
