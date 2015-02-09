@@ -4,6 +4,7 @@ var ping = require('ping');
 var LineByLineReader = require('line-by-line');
 var _ = require('lodash');
 var os = require('os');
+var async = require('async');
  
 var port = 5627;
  
@@ -13,14 +14,12 @@ server.bind(port);
 var result = [];
 var timeouts = [];
 
-if (process.argv[2] === '-m') {
+var master = !!process.argv[2]
+
+if (master) {
   var nodes = []
 
   var lr = new LineByLineReader('listOfNodes.txt');
-
-  lr.on('error', function (err) {
-
-  });
 
   lr.on('line', function (host) {
     nodes.push(host);
@@ -44,41 +43,84 @@ server.on('listening', function () {
 server.on("message", function (msg, rinfo) {
   var reply = JSON.parse(msg);
 
-  switch(msg.command) {
+  switch(reply.command) {
       case "ReplyWithStatusPlease":
-          respondWithStatus(reply);
+          respondWithStatus(reply, rinfo);
           break;
       case "RespondedWithData":
           parseStatusResponse(reply, rinfo);
           break;
+      case "ContactGroupToGetStatus":
+          hierarchal(reply.data, reply.tier);
       default:
-          console.log("wrong command")
+          console.log("wrong command");
   }
 
 });
 
 var hierarchal = function (list, tier) {
-  var length = Math.ceil(Math.pow(list.length, 1/tiers));
+  if (tier <= 1) {
+    _.each(list, function (host) {
+      getDataFromHost(host);
+    })
+  } else {
+    var length = Math.ceil(Math.pow(list.length, 1/tier));
 
-  var groups = _.chunk(list, [size=Math.pow(length, tiers - 1)])
+    var groups = _.chunk(list, [size=Math.pow(length, tier - 1)])
 
-  _.each(groups, function(group) {
-    console.log(group);
-  });
+    var sub_master = async.map(groups, function(group, done) {
+      async.detect(group, function (host, callback) {
+        ping.sys.probe(host, function (isAlive) {
+          callback(isAlive);
+        });
+      }, function (result) {
+        done(null, result);
+      });
+    }, function (err, results) {
+      _.each(results, function (submaster, index) {
+        if (submaster){
+          getDataFromHost(submaster, groups[index], tier-1);
+        } else {
+          entireBranchisDead(groups[index]);
+        }
+      });
+    });
+  }
+
 }
 
-var getDataFromHost = function (host) {
+
+var entireBranchisDead = function (grouplist) {
+  _.each(grouplist, function (host) {
+    result.push({
+      hostname: host,
+      alive: false
+    });
+  })
+}
+
+var getDataFromHost = function (host, grouplist, tier) {
   var status = {
     hostname: host
   }
   ping.sys.probe(host, function (isAlive) {
       var msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
+      var req = {}
       status.alive = isAlive;
-      var req = JSON.stringify({
-        command: "ReplyWithStatusPlease",
-        data: status
-      });
-      var request = new Buffer(req);
+      if (grouplist) {
+        req = {
+          command: "ContactGroupToGetStatus",
+          data: grouplist,
+          tier: tier
+        }
+      } else {
+        req = {
+          command: "ReplyWithStatusPlease",
+          data: status
+        };
+      }
+
+      var request = new Buffer(JSON.stringify(req));
 
       result.push(status);
 
@@ -90,7 +132,6 @@ var getDataFromHost = function (host) {
       }
   });
 }
-
 
 var parseStatusResponse = function (reply, rinfo) {
   var index = _.findIndex(result, {hostname: reply.data.hostname})
@@ -104,7 +145,7 @@ var parseStatusResponse = function (reply, rinfo) {
   }
 }
 
-var respondWithStatus = function (request) {
+var respondWithStatus = function (request, rinfo) {
   request.data.used = os.totalmem() - os.freemem();
   request.data.free = os.freemem();
   request.data.uptime = os.uptime();
