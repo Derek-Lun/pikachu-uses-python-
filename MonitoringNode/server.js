@@ -34,7 +34,7 @@ if (master) {
   });
 
   lr.on('end', function () {
-    setInterval(function(){ start() }, 300000);
+    setInterval(start, 300000);
   });
 }
 
