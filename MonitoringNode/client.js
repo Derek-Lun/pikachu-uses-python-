@@ -14,8 +14,16 @@ var data = {
 
 client.on("message", function (msg, rinfo) {
 
-  if (msg.toString() === "ReplyWithDataPlease") {
-    var reply = new Buffer(JSON.stringify(data));
+  var request = JSON.parse(msg);
+
+  if (request.command === "ReplyWithStatusPlease") {
+
+    request.data.used = os.totalmem() - os.freemem();
+    request.data.free = os.freemem();
+    request.data.uptime = os.uptime();
+    request.data.loadavg = os.loadavg();
+    
+    var reply = new Buffer(JSON.stringify(request));
 
     client.send(reply, 0, reply.length, rinfo.port, rinfo.address, function(err, bytes) {
         if (err) throw err;
@@ -23,6 +31,5 @@ client.on("message", function (msg, rinfo) {
     });
   }
 
-  console.log(msg.toString(), rinfo);
 
 });
