@@ -30,3 +30,5 @@ cs-planetlab3.cs.surrey.sfu.ca
 pl3.cs.unm.edu
 pli1-pa-1.hpl.hp.com
 pl2.pku.edu.cn
+planetlab1.cs.ubc.ca
+planetlab2.cs.ubc.ca
