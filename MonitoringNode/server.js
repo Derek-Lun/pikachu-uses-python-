@@ -16,7 +16,7 @@ server.bind(port);
 var result = [];
 var timeout;
 var timeout_period;
-var min_timeout = 1000;
+var min_timeout = 5000;
 
 var parent_host;
 var parent_port;
@@ -68,6 +68,9 @@ server.on('listening', function () {
 server.on("message", function (msg, rinfo) {
   var reply = JSON.parse(msg);
 
+  console.log("Message received from" + rinfo.address + ":" + rinfo.port);
+  console.log(reply.command);
+
   switch(reply.command) {
       case "ReplyWithStatusPlease":
           respondWithStatus(reply, rinfo);
@@ -77,8 +80,10 @@ server.on("message", function (msg, rinfo) {
           break;
       case "ContactGroupToGetStatus":
           hierarchal(reply.hostname, reply.tier, reply.grouplist, reply.grpnum, rinfo);
+          break;
       case "RespondedWithDataFromGroup":  
           conglomerateData(reply, rinfo);
+          break;
       default:
           console.log("wrong command");
   }
@@ -87,10 +92,20 @@ server.on("message", function (msg, rinfo) {
 
 var conglomerateData = function (reply, rinfo) {
   _.each(reply.data, function (rep) {
-    if (_.some(sentTo, rep.hostname)) {
-      rep.ip = rinfo.address;
+
+    var i = _.each(sentTo, function(h) {
+      if (h === rep.hostname) {
+        rep.ip = rinfo.address;
+      }
+    });
+
+    var index = _.findIndex(result, {hostname: rep.hostname});
+
+    if (index !== -1) {
+      result[index] = rep;
+    } else {
+      result.push(rep);
     }
-    result.push(rep);
   })
 }
 
@@ -107,8 +122,6 @@ var hierarchal = function (origin, tier, list, grpnum, rinfo) {
       getDataFromHost(host);
     })
   } else {
-    timeout_period = min_timeout * tier;
-
     var grouplength = Math.ceil(list.length / grpnum);
     var groups = _.chunk(list, [size=grouplength])
 
@@ -153,7 +166,7 @@ var sendDataBackToParent = function () {
 }
 
 var getDataFromHosts = function(host, grouplist, tier, grpnum) {
-  var timeout_length = tier * min_timeout;
+  var timeout_length = (tier + 1) * min_timeout;
   ping.sys.probe(host, function (isAlive) {
       var req = {}
 
@@ -177,6 +190,12 @@ var getDataFromHost = function (host) {
   var status = {
     hostname: host
   }
+
+  dns.resolve4(host, function (err, addresses) {
+    if (!err) {
+      status.ip = addresses[0];
+    }
+  });
 
   current_host = host;
 
@@ -214,12 +233,21 @@ var timeout_function = function () {
     currentMachine.uptime = status.uptime;
     currentMachine.loadavg = status.loadavg;
 
-    result.push(currentMachine);
+    var index = _.findIndex(result, {hostname: current_host});
+
+    if (index !== -1) {
+      currentMachine.ip = result[index].ip
+      result[index] = currentMachine;
+    } else {
+      result.push(currentMachine);
+    }
 
     var res = {
       command: "RespondedWithDataFromGroup",
       data: result
     }
+
+    console.log(result);
 
     var reply = new Buffer(JSON.stringify(res));
 
