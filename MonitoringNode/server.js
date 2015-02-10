@@ -6,6 +6,7 @@ var _ = require('lodash');
 var os = require('os');
 var async = require('async');
 var dns = require('dns');
+var fs = require('fs');
  
 var port = 5627;
  
@@ -22,18 +23,26 @@ var parent_port;
 
 var sentTo = [];
 
+var current_host;
+
 var master = !!process.argv[2]
 
 if (master) {
   var nodes = []
 
-  var lr = new LineByLineReader('listOfNodes.txt');
+  var lr = new LineByLineReader('node.txt');
+
+  lr.on('err', function () {
+    console.log("Error opening file");
+    process.exit(1);
+  })
 
   lr.on('line', function (host) {
     nodes.push(host);
   });
 
   lr.on('end', function () {
+    start()
     setInterval(start, 300000);
   });
 }
@@ -44,9 +53,11 @@ var start = function () {
     process.exit(1);
   }
 
-  var grpnum = Math.ceil(Math.pow(list.length, 1/tier));
+  var grpnum = Math.ceil(Math.pow(nodes.length, 1/tiers));
 
-  hierarchal(nodes, tiers, grpnum);
+  current_host = "master"
+
+  hierarchal(current_host, tiers, nodes, grpnum);
 }
 
 server.on('listening', function () {
@@ -62,10 +73,10 @@ server.on("message", function (msg, rinfo) {
           respondWithStatus(reply, rinfo);
           break;
       case "RespondedWithData":
-          parseStatusResponse(reply, rinfo);
+          parseStatusResponsefromHost(reply, rinfo);
           break;
       case "ContactGroupToGetStatus":
-          hierarchal(reply.data, reply.tier, reply.grpnum, rinfo);
+          hierarchal(reply.hostname, reply.tier, reply.grouplist, reply.grpnum, rinfo);
       case "RespondedWithDataFromGroup":  
           conglomerateData(reply, rinfo);
       default:
@@ -77,17 +88,19 @@ server.on("message", function (msg, rinfo) {
 var conglomerateData = function (reply, rinfo) {
   _.each(reply.data, function (rep) {
     if (_.some(sentTo, rep.hostname)) {
-      rep.ipaddress = rinfo.address;
+      rep.ip = rinfo.address;
     }
     result.push(rep);
   })
 }
 
-var hierarchal = function (list, tier, grpnum, rinfo) {
+var hierarchal = function (origin, tier, list, grpnum, rinfo) {
   if (rinfo) {
     parent_host = rinfo.address;
-    parent_port = rinfo.port;    
+    parent_port = rinfo.port;
   }
+
+  current_host = origin;
 
   if (tier <= 1) {
     _.each(list, function (host) {
@@ -96,7 +109,7 @@ var hierarchal = function (list, tier, grpnum, rinfo) {
   } else {
     timeout_period = min_timeout * tier;
 
-    var grouplength = Math.ceil(list / grpnum);
+    var grouplength = Math.ceil(list.length / grpnum);
     var groups = _.chunk(list, [size=grouplength])
 
     var sub_master = async.map(groups, function(group, done) {
@@ -139,27 +152,20 @@ var sendDataBackToParent = function () {
 
 }
 
-var getDataFromHosts = function(host, grouplist, tier) {
-  var status = {
-    hostname: host
-  }
-
+var getDataFromHosts = function(host, grouplist, tier, grpnum) {
+  var timeout_length = tier * min_timeout;
   ping.sys.probe(host, function (isAlive) {
-      var msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
       var req = {}
-      status.alive = isAlive;
 
       req = {
         command: "ContactGroupToGetStatus",
         grouplist: grouplist,
         tier: tier,
         grpnum: grpnum,
-        data: status
+        origin: host
       }
 
       var request = new Buffer(JSON.stringify(req));
-
-      result.push(status);
 
       if (isAlive) {
         serverSend(request, host, port, timeout_length);
@@ -171,6 +177,8 @@ var getDataFromHost = function (host) {
   var status = {
     hostname: host
   }
+
+  current_host = host;
 
   ping.sys.probe(host, function (isAlive) {
       var msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
@@ -187,15 +195,15 @@ var getDataFromHost = function (host) {
       result.push(status);
 
       if (isAlive) {
-        serverSend(request, host, port, timeout_length);
+        serverSend(request, host, port, min_timeout);
       }
   });
 }
 
-var timeout_function = function (host) {
+var timeout_function = function () {
   if (parent_port && parent_host) {
     var currentMachine = {
-      hostname: host,
+      hostname: current_host,
       alive: true
     }
 
@@ -225,15 +233,19 @@ var timeout_function = function (host) {
 var writeResultToFile = function () {
   var res = JSON.stringify(result);
 
-  console.log(res);
-
-  //inside sutffdnkjagdhgkaghdklghadkl;had;
+  fs.writeFile("/var/www/html/EECE411_A2_master_node/data.json", res, function(err) {
+      if(err) {
+          console.log(err);
+      } else {
+          console.log(res);
+      }
+  }); 
 }
 
 var parseStatusResponsefromHost = function (reply, rinfo) {
   var index = _.findIndex(result, {hostname: reply.data.hostname});
 
-  reply.data.ipaddress = rinfo.address;
+  reply.data.ip = rinfo.address;
 
   if (index !== -1) {
     result[index] = reply.data;
@@ -262,13 +274,18 @@ var respondWithStatus = function (request, rinfo) {
 
   var reply = new Buffer(JSON.stringify(request));
 
-  serverSend(reply, rinfo.address, rinfo.port, min_timeout);
+  serverSend(reply, rinfo.address, rinfo.port);
 } 
 
 var serverSend = function (messageBuffer, destHost, destPort, timeout_length) {
-  sentTo.push(destHost); 
+  sentTo.push(destHost)
   server.send(messageBuffer, 0, messageBuffer.length, destPort, destHost, function(err, bytes) {
       if (err) throw err;
-      console.log('UDP message sent to ' + rinfo.address +':'+ rinfo.port);
+      console.log('UDP message sent to ' + destHost +':'+ destPort);
+
+      if (timeout_length) {
+        clearTimeout(timeout);
+        timeout = setTimeout(timeout_function, timeout_length);
+      }
   });
 }
