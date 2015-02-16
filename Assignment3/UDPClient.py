@@ -104,7 +104,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 5627)
+server_address = ('localhost', 7777)
 
 message = struct.pack('<I', 909090)
 
@@ -112,5 +112,3 @@ data = sendRequest(message, server_address)
 
 if data:
   parsePayload(data)
-
-
