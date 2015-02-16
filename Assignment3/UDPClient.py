@@ -4,6 +4,7 @@ import array
 import struct
 import random
 import time
+import select
 
 def requestID ():
   rID = bytearray()
@@ -33,48 +34,84 @@ def requestID ():
 
   return rID
 
+def parseID (original, received):
+  match = True
+
+  for x in range(0,16):
+    o = struct.pack('<B', original[x])
+    r = received[x]
+    if not (o == r):
+      match = False
+      break
+
+  return match
+
+def parsePayload (received):
+  size = struct.unpack_from('<i',received, 16)
+  print size[0]
+
+  r = list(received)
+  for i in range(0, 20):
+    r.pop(0)
+
+  payload = []
+
+  for i in range(size[0]):
+    payload.append(r[i])
+
+  return payload
 
 def sendRequest (dataPayload, server_address):
-  timeoutInterval = 100
+  timeoutInterval = 500
   numTries = 1
   done = False
 
   data = requestID()
 
-  data.extend(dataPayload)
+  rID = bytearray()
 
   for i in data:
-    print hex(i)
+    rID.append(i);
+
+  data.extend(dataPayload)
 
   while (not done) and numTries <= 3:
     try:
       # Send data
       print 'sending data'
 
-      # sock.setblocking(1)
-      sock.settimeout(timeoutInterval/1000)
+      print 'Trying %s time' %numTries
       sent = sock.sendto(data, server_address)
 
       numTries += 1
 
       # Receive response
       print 'waiting to receive'
-      data, server = sock.recvfrom(server_address[1])
-      # check if requestID is the same
-      done = True
-      print 'received "%s"' % data
+
+      sock.settimeout(timeoutInterval/1000)
+      data, server = sock.recvfrom(sock.getsockname()[1])
+
+      if parseID(rID, data):
+        done = True
+        return data
     except socket.error:
+      if numTries > 3:
+        print 'Exceed maximum of tries, server may be down.'
+        break;
       timeoutInterval *= 2
-      print 'Timeout. Doubling timeout to "%s" ms.' % timeoutInterval
+      print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 5627)
-message = struct.pack('<I', 909090)
-
 localport = 4000
 
-sendRequest(message, server_address)
+server_address = ('localhost', 5627)
+
+message = struct.pack('<I', 909090)
+
+data = sendRequest(message, server_address)
+
+parsePayload(data)
 
 

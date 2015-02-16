@@ -17,6 +17,7 @@ server.on("message", function (msg, rinfo) {
   };
  
   console.log(client)
+  console.log(rinfo.address, rinfo.port)
   // Increment secret by 1
   client.id.writeUInt8((client.id).readUInt8(client.id.length-1) + 1, client.id.length-1);
  
