@@ -14,19 +14,19 @@ def requestID ():
 
   for elem in ip:
     y = int(elem)
-    hostAddress.append(struct.pack('>B',y))
+    hostAddress.append(struct.pack('<B',y))
 
   rID.extend(hostAddress)
 
-  port = struct.pack('>h',localport)
+  port = struct.pack('<h',localport)
 
   rID.extend(port)
 
-  randomGen = struct.pack('>H', random.randint(0, 65534))
+  randomGen = struct.pack('<H', random.randint(0, 65534))
 
   rID.extend(randomGen)
 
-  millis = struct.pack('>Q', long(round(time.time() * 1000)))
+  millis = struct.pack('<Q', long(round(time.time() * 1000)))
 
   rID.extend(millis)
 
@@ -36,7 +36,7 @@ def parseID (original, received):
   match = True
 
   for x in range(0,16):
-    o = struct.pack('>B', original[x])
+    o = struct.pack('<B', original[x])
     r = received[x]
     if not (o == r):
       match = False
@@ -45,7 +45,8 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  size = struct.unpack_from('>i',received, 16)
+  size = struct.unpack_from('<i',received, 16)
+  print size[0]
 
   r = list(received)
   for i in range(0, 20):
@@ -92,7 +93,7 @@ def sendRequest (dataPayload, server_address):
         done = True
         return data
     except socket.error:
-      if numTries > 3:
+      if numTries < 3:
         print 'Exceed maximum of tries, server may be down.'
         break;
       timeoutInterval *= 2
@@ -105,7 +106,7 @@ localport = 4000
 
 server_address = ('localhost', 5627)
 
-message = struct.pack('>I', 909090)
+message = struct.pack('<I', 909090)
 
 data = sendRequest(message, server_address)
 
