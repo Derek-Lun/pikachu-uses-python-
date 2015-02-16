@@ -14,21 +14,19 @@ def requestID ():
 
   for elem in ip:
     y = int(elem)
-    hostAddress.append(struct.pack('!B',y))
-
-  hostAddress.reverse()
+    hostAddress.append(struct.pack('>B',y))
 
   rID.extend(hostAddress)
 
-  port = struct.pack('<h',localport)
+  port = struct.pack('>h',localport)
 
   rID.extend(port)
 
-  randomGen = struct.pack('<H', random.randint(0, 65534))
+  randomGen = struct.pack('>H', random.randint(0, 65534))
 
   rID.extend(randomGen)
 
-  millis = struct.pack('<Q', long(round(time.time() * 1000)))
+  millis = struct.pack('>Q', long(round(time.time() * 1000)))
 
   rID.extend(millis)
 
@@ -38,7 +36,7 @@ def parseID (original, received):
   match = True
 
   for x in range(0,16):
-    o = struct.pack('<B', original[x])
+    o = struct.pack('>B', original[x])
     r = received[x]
     if not (o == r):
       match = False
@@ -47,8 +45,7 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  size = struct.unpack_from('<i',received, 16)
-  print size[0]
+  size = struct.unpack_from('>i',received, 16)
 
   r = list(received)
   for i in range(0, 20):
@@ -108,10 +105,11 @@ localport = 4000
 
 server_address = ('localhost', 5627)
 
-message = struct.pack('<I', 909090)
+message = struct.pack('>I', 909090)
 
 data = sendRequest(message, server_address)
 
-parsePayload(data)
+if data:
+  parsePayload(data)
 
 

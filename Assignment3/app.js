@@ -10,14 +10,12 @@ server.bind(port);
  
 server.on("message", function (msg, rinfo) {
   var client = {
-    ip: msg.readUInt32LE(0),
-    srcPort: msg.readUInt16LE(4),
-    time: parseInt(msg.readUInt32LE(12).toString(16) + msg.readUInt32LE(8).toString(16), 16),
+    ip: msg.readUInt32BE(0),
+    srcPort: msg.readUInt16BE(4),
+    time: parseInt(msg.readUInt32BE(12).toString(16) + msg.readUInt32BE(8).toString(16), 16),
     id: new Buffer(msg.toString('utf8', 16))
   };
- 
-  console.log(client)
-  console.log(rinfo.address, rinfo.port)
+
   // Increment secret by 1
   client.id.writeUInt8((client.id).readUInt8(client.id.length-1) + 1, client.id.length-1);
  
@@ -29,7 +27,7 @@ server.on("message", function (msg, rinfo) {
     var secretBuffer = new Buffer(secret, "hex");
  
     msg.copy(response, 0, 0, 16); // unique ID
-    response.writeUInt32LE(secretBuffer.length, 16); // secret length
+    response.writeUInt32BE(secretBuffer.length, 16); // secret length
     
     secretBuffer.copy(response, 20); // sha1 digest of id
     
