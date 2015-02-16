@@ -16,6 +16,7 @@ server.on("message", function (msg, rinfo) {
     id: new Buffer(msg.toString('utf8', 16))
   };
  
+  console.log(client)
   // Increment secret by 1
   client.id.writeUInt8((client.id).readUInt8(client.id.length-1) + 1, client.id.length-1);
  

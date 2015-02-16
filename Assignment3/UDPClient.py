@@ -34,35 +34,47 @@ def requestID ():
   return rID
 
 
-def sendRequest (dataPayload, hostname, port):
+def sendRequest (dataPayload, server_address):
   timeoutInterval = 100
   numTries = 1
   done = False
-  # while (not done)&& numTries <= 3:
-  #   try:
-  #     # Send data
-  #     print 'sending "%s"' % message
-  #     #generate request ID
-  #     sent = sock.sendto(message, server_address)
-  #     sent.settimeout(timeoutInterval/1000)
 
-  #     # Receive response
-  #     print 'waiting to receive'
-  #     data, server = sock.recvfrom(localport)
-  #     # check if requestID is the same
-  #     done = True
-  #     numTries++
-  #     print 'received "%s"' % data
-  #   except socket.timeout:
-  #     timeoutInterval *= 2
-  #     print 'Timeout. Doubling timeout to "%s" ms.' % timeoutInterval
+  data = requestID()
+
+  data.extend(dataPayload)
+
+  for i in data:
+    print hex(i)
+
+  while (not done) and numTries <= 3:
+    try:
+      # Send data
+      print 'sending data'
+
+      # sock.setblocking(1)
+      sock.settimeout(timeoutInterval/1000)
+      sent = sock.sendto(data, server_address)
+
+      numTries += 1
+
+      # Receive response
+      print 'waiting to receive'
+      data, server = sock.recvfrom(server_address[1])
+      # check if requestID is the same
+      done = True
+      print 'received "%s"' % data
+    except socket.error:
+      timeoutInterval *= 2
+      print 'Timeout. Doubling timeout to "%s" ms.' % timeoutInterval
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 10000)
-message = 'This is the message.  It will be repeated.'
+server_address = ('localhost', 5627)
+message = struct.pack('<I', 909090)
 
 localport = 4000
 
-requestID()
+sendRequest(message, server_address)
+
+
