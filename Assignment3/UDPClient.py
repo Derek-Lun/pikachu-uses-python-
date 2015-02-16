@@ -87,7 +87,7 @@ def sendRequest (dataPayload, server_address):
       print 'waiting to receive'
 
       sock.settimeout(timeoutInterval/1000)
-      data, server = sock.recvfrom(sock.getsockname()[1])
+      data, server = sock.recvfrom(16384)
 
       if parseID(rID, data):
         done = True
