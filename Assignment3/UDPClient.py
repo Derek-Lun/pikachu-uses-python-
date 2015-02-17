@@ -73,6 +73,9 @@ def sendRequest (dataPayload, server_address):
 
   data.extend(dataPayload)
 
+  for i in data:
+    print hex(i)
+
   while (not done) and numTries <= 3:
     try:
       # Send data
@@ -106,7 +109,7 @@ localport = 4000
 
 server_address = ('localhost', 7778)
 
-message = struct.pack('<I', 01)
+message = struct.pack('<I', 05)
 
 data = sendRequest(message, server_address)
 
