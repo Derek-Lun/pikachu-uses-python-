@@ -64,6 +64,14 @@ def createReply (status, value = None):
 
   return reply  
 
+def cacheMsg(msg):
+  if msg in cache_request:
+    cache_request.remove(msg)
+    return True
+  else:
+    cache_request.append(msg)
+    return False
+
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -71,20 +79,28 @@ server_address = ('localhost', 7778)
 
 sock.bind(server_address)
 
+cache_request = []
+
 while True:
   print "Listening on %s" % server_address[1]
 
   rdata, address = sock.recvfrom(16384)
 
   req = parseCommand(rdata)
-
+  
+  
   if req['command'] in command:
     func = command[req['command']]
     value, status = func(req) 
     #sock.sentto(reply, address)
   else:
-    print 'invalid command'
-    reply = createReply('do_not_recognize')
-    sock.sendto(reply, address)
+    if cacheMsg(req) :
+      reply = createReply('success')
+      sock.sendto(reply, address)
+    
+    
+    #print 'invalid command'
+    #reply = createReply('do_not_recognize')
+    #sock.sendto(reply, address)
     
 
