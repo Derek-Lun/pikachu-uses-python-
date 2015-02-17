@@ -46,13 +46,13 @@ def parseCommand (recv):
   try:
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    print (request['command'])
     request['key'] = recv[17:49]
 
     if request['command'] == 0:
       length = struct.unpack_from('<h', recv, 49)
-      begin = 50
-      request['value'] = recv[begin:begin+length]
+      begin = 51
+      request['value'] = recv[begin:begin+length[0]]
+
   except:
     request['command'] = None
 
@@ -95,7 +95,7 @@ while True:
 
   if len(rdata) > 16:
     req = parseCommand(rdata)
-
+    print req
     if req['command'] in command:
       func = command[req['command']]
       value, status = func(req) 

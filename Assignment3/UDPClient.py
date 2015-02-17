@@ -31,7 +31,7 @@ def requestID ():
   rID.extend(millis)
 
   return rID
-# We don't need this for Assignment 3
+
 def parseID (original, received):
   match = True
 
@@ -45,20 +45,17 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  if (len(received) == 1):
-    payload = received
-  else:
-    size = struct.unpack_from('<i',received, 1)
-    print size[0]
-    
-    r = list(received)
-    for i in range(0, 20):
-        r.pop(0)
-    
-    payload = []
-    
-    for i in range(size[0]):
-        payload.append(r[i])
+  size = struct.unpack_from('<i',received, 16)
+  print size[0]
+
+  r = list(received)
+  for i in range(0, 20):
+    r.pop(0)
+
+  payload = []
+
+  for i in range(size[0]):
+    payload.append(r[i])
 
   return payload
 
@@ -73,11 +70,8 @@ def sendRequest (dataPayload, server_address):
 
   for i in data:
     rID.append(i);
-
+	
   data.extend(dataPayload)
-
-  for i in data:
-    print hex(i)
 
   while (not done) and numTries <= 3:
     try:
@@ -95,17 +89,45 @@ def sendRequest (dataPayload, server_address):
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
 
-      if data:
-        print "done: ", data
+      if parseID(rID, data):
         done = True
         return data
     except socket.error:
-      if numTries > 3:
+      if numTries < 3:
         print 'Exceed maximum of tries, server may be down.'
         break;
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
+def assembleMessage(commandNum,keyString,valueString):
+    #Define each byte array with fixed size.
+    messageBuff = bytearray()
+    commandBuff = bytearray(1)
+    keyBuff = bytearray(32)
+    vLengthBuff = bytearray(2)
+    valueBuff = bytearray(15000)
+
+
+    #Put value in byte array
+
+    commandBuff = struct.pack ('<b',commandNum)
+    
+
+    index = 0
+    for letter in keyString:    
+        struct.pack_into('<s',keyBuff,index,letter)
+        index += 1
+	
+	valueBuff=valueString
+    vLengthBuff = struct.pack ('<h',len(valueString))
+
+    messageBuff.extend(commandBuff)
+    messageBuff.extend(keyBuff)
+    messageBuff.extend(vLengthBuff)
+    messageBuff.extend(valueBuff)
+	
+    return messageBuff	
+	  
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -113,9 +135,18 @@ localport = 4000
 
 server_address = ('localhost', 7778)
 
-message = struct.pack('<I', 00)
 
+#Test Case setting
+command = 1
+key = "yolo1234"
+value = "They hate us cuz they ain't us"
+
+#Assemble a sending message
+message=assembleMessage(command,key,value)
+
+
+	
 data = sendRequest(message, server_address)
 
 if data:
-  print parsePayload(data)
+  parsePayload(data)
