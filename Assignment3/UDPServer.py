@@ -6,12 +6,21 @@ data = {}
 
 def put ():
   print 'put'
+  data.update(request['key'], request['value'])
+  return success, null
 
 def get ():
   print 'get'
+  if request['key'] in data:
+    return success, data.get(request['key'])
+  return dne, null 
 
 def remove ():
   print 'remove'
+  if request['key'] in data:
+    data.pop(request['key'], None)
+    return success, null
+  return dne, null 
 
 def shutdown ():
   print 'shutdown'
@@ -68,12 +77,13 @@ while True:
 
   req = parseCommand(data)
 
-  func = command[req['command']]
-
-  if func:
-    func()
+  if req['command'] in command:
+    func = command[req['command']]
+    value, status = func() 
+    #sock.sentto(reply, address)
   else:
-    reply = createReply('do_not_recognize');
-    sock.sentto(reply, address)
-
+    print 'invalid command'
+    reply = createReply('do_not_recognize')
+    sock.sendto(reply, address)
+    
 
