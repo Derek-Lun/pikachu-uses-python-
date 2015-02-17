@@ -67,7 +67,7 @@ def createReply (status, value = None):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7777)
+server_address = ('localhost', 7778)
 
 sock.bind(server_address)
 

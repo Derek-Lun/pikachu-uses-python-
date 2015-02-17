@@ -93,7 +93,7 @@ def sendRequest (dataPayload, server_address):
         done = True
         return data
     except socket.error:
-      if numTries < 3:
+      if numTries > 3:
         print 'Exceed maximum of tries, server may be down.'
         break;
       timeoutInterval *= 2
@@ -104,7 +104,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7777)
+server_address = ('localhost', 7778)
 
 message = struct.pack('<I', 01)
 
