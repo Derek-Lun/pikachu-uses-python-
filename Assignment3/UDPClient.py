@@ -106,6 +106,35 @@ def sendRequest (dataPayload, server_address):
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
+def assembleMessage(commandNum,keyString,valueString):
+    #Define each byte array with fixed size.
+    messageBuff = bytearray()
+    commandBuff = create_string_buffer(1)
+    keyBuff = bytearray(32)
+    vLengthBuff = create_string_buffer(2)
+    valueBuff = create_string_buffer(15000)
+
+
+    #Put value in byte array
+
+    commandBuff = struct.pack ('<b',commandNum)
+    
+
+    index = 0
+    for letter in keyString:    
+        struct.pack_into('<s',keyBuff,index,letter)
+        index += 1
+	
+	valueBuff=valueString
+    vLengthBuff = struct.pack ('<h',len(valueString))
+
+    messageBuff.extend(commandBuff)
+    messageBuff.extend(keyBuff)
+    messageBuff.extend(vLengthBuff)
+    messageBuff.extend(valueBuff)
+	
+    return messageBuff		  
+	  
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -113,7 +142,13 @@ localport = 4000
 
 server_address = ('localhost', 7778)
 
-message = struct.pack('<I', 05)
+#Test Case setting
+command = 0
+key = "yolo1234"
+value = "They hate us cuz they ain't us"
+
+#Assemble a sending message
+message=assembleMessage(command,key,value)
 
 data = sendRequest(message, server_address)
 

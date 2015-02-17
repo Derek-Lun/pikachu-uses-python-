@@ -51,8 +51,8 @@ def parseCommand (recv):
 
     if request['command'] == 0:
       length = struct.unpack_from('<h', recv, 49)
-      begin = 50
-      request['value'] = recv[begin:begin+length]
+      begin = 51
+      request['value'] = recv[begin:begin+length[0]]
   except:
     request['command'] = None
 
