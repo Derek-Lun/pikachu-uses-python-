@@ -113,7 +113,7 @@ localport = 4000
 
 server_address = ('localhost', 7778)
 
-message = struct.pack('<I', 05)
+message = struct.pack('<I', 00)
 
 data = sendRequest(message, server_address)
 
