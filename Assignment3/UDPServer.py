@@ -3,23 +3,23 @@ import struct
 
 data = {}
 
-def put ():
+def put (request):
   print 'put'
   data.update(request['key'], request['value'])
-  return success, null
+  return 'success', None
 
-def get ():
+def get (request):
   print 'get'
   if request['key'] in data:
-    return success, data.get(request['key'])
-  return dne, null 
+    return 'success', data.get(request['key'])
+  return 'dne', None 
 
-def remove ():
+def remove (request):
   print 'remove'
   if request['key'] in data:
     data.pop(request['key'], None)
-    return success, null
-  return dne, null 
+    return 'success', None
+  return 'dne', None 
 
 def shutdown ():
   print 'shutdown'
@@ -42,7 +42,9 @@ response_status = {
 
 def parseCommand (recv):
   request = {}
-  request['command'] = recv[:1]
+  request['command'] = struct.unpack('<b',recv[16])
+  request['command'] = request['command'][0]
+  print (request['command'])
   request['key'] = recv[1:33]
 
   if request['command'] == 0:
@@ -72,13 +74,13 @@ sock.bind(server_address)
 while True:
   print "Listening on %s" % server_address[1]
 
-  data, address = sock.recvfrom(16384)
+  rdata, address = sock.recvfrom(16384)
 
-  req = parseCommand(data)
+  req = parseCommand(rdata)
 
   if req['command'] in command:
     func = command[req['command']]
-    value, status = func() 
+    value, status = func(req) 
     #sock.sentto(reply, address)
   else:
     print 'invalid command'
