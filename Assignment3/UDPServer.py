@@ -42,15 +42,19 @@ response_status = {
 
 def parseCommand (recv):
   request = {}
-  request['command'] = struct.unpack('<b',recv[16])
-  request['command'] = request['command'][0]
-  print (request['command'])
-  request['key'] = recv[17:49]
 
-  if request['command'] == 0:
-    length = struct.unpack_from('<h', recv, 49)
-    begin = 50
-    request['value'] = recv[begin:begin+length]
+  try:
+    request['command'] = struct.unpack_from('<b',recv, 16)
+    request['command'] = request['command'][0]
+    print (request['command'])
+    request['key'] = recv[17:49]
+
+    if request['command'] == 0:
+      length = struct.unpack_from('<h', recv, 49)
+      begin = 50
+      request['value'] = recv[begin:begin+length]
+  except:
+    request['command'] = None
 
   return request
 
@@ -71,20 +75,19 @@ server_address = ('localhost', 7777)
 
 sock.bind(server_address)
 
+print "Listening on %s" % server_address[1]
 while True:
-  print "Listening on %s" % server_address[1]
-
   rdata, address = sock.recvfrom(16384)
 
-  req = parseCommand(rdata)
+  if len(rdata) > 16:
+    req = parseCommand(rdata)
 
-  if req['command'] in command:
-    func = command[req['command']]
-    value, status = func(req) 
-    #sock.sentto(reply, address)
-  else:
-    print 'invalid command'
-    reply = createReply('do_not_recognize')
-    sock.sendto(reply, address)
-    
+    if req['command'] in command:
+      func = command[req['command']]
+      value, status = func(req) 
+      #sock.sentto(reply, address)
+    else:
+      print 'invalid command'
+      reply = createReply('do_not_recognize')
+      sock.sendto(reply, address)     
 
