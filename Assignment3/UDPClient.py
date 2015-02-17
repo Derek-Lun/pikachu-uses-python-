@@ -93,7 +93,7 @@ def sendRequest (dataPayload, server_address):
         done = True
         return data
     except socket.error:
-      if numTries < 3:
+      if numTries > 3:
         print 'Exceed maximum of tries, server may be down.'
         break;
       timeoutInterval *= 2
