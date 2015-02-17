@@ -31,7 +31,7 @@ def requestID ():
   rID.extend(millis)
 
   return rID
-
+# We don't need this for Assignment 3
 def parseID (original, received):
   match = True
 
@@ -45,17 +45,20 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  size = struct.unpack_from('<i',received, 16)
-  print size[0]
-
-  r = list(received)
-  for i in range(0, 20):
-    r.pop(0)
-
-  payload = []
-
-  for i in range(size[0]):
-    payload.append(r[i])
+  if (len(received) == 1):
+    payload = received
+  else:
+    size = struct.unpack_from('<i',received, 1)
+    print size[0]
+    
+    r = list(received)
+    for i in range(0, 20):
+        r.pop(0)
+    
+    payload = []
+    
+    for i in range(size[0]):
+        payload.append(r[i])
 
   return payload
 
@@ -92,7 +95,8 @@ def sendRequest (dataPayload, server_address):
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
 
-      if parseID(rID, data):
+      if data:
+        print "done: ", data
         done = True
         return data
     except socket.error:
@@ -114,4 +118,4 @@ message = struct.pack('<I', 05)
 data = sendRequest(message, server_address)
 
 if data:
-  parsePayload(data)
+  print parsePayload(data)

@@ -65,8 +65,11 @@ def createReply (status, value = None):
 
   if value:
     reply.extend(value)
-
-  return reply  
+    
+  reply_str = "";  
+  for index in range(len(reply)):
+    reply_str = reply_str.join(str(reply[index]))
+  return reply_str
 
 def cacheMsg(msg):
   if msg in cache_request:
@@ -96,8 +99,9 @@ while True:
     if req['command'] in command:
       func = command[req['command']]
       value, status = func(req) 
-      #sock.sentto(reply, address)
+      sock.sendto(reply, address)
     else:
       print 'invalid command'
       reply = createReply('do_not_recognize')
+      print "send this: %s" % reply
       sock.sendto(reply, address)     
