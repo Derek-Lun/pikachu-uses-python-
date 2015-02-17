@@ -45,11 +45,11 @@ def parseCommand (recv):
   request['command'] = struct.unpack('<b',recv[16])
   request['command'] = request['command'][0]
   print (request['command'])
-  request['key'] = recv[1:33]
+  request['key'] = recv[17:49]
 
   if request['command'] == 0:
-    length = struct.unpack_from('<h', recv, 33)
-    begin = 35
+    length = struct.unpack_from('<h', recv, 49)
+    begin = 50
     request['value'] = recv[begin:begin+length]
 
   return request
