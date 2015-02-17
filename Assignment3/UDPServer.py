@@ -1,7 +1,6 @@
 import socket
 import struct
 
-
 data = {}
 
 def put ():
@@ -37,10 +36,10 @@ def parseCommand (recv):
   request['command'] = recv[:1]
   request['key'] = recv[1:33]
 
-  if request['command'] == 'put':
+  if request['command'] == 0:
     length = struct.unpack_from('<h', recv, 33)
     begin = 35
-    request['value'] = recv[begin:being+length]
+    request['value'] = recv[begin:begin+length]
 
   return request
 
