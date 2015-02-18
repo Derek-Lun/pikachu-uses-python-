@@ -114,7 +114,7 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7787)
+server_address = ('localhost', 7785)
 
 sock.bind(server_address)
 
