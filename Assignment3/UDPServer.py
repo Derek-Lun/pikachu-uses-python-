@@ -29,10 +29,10 @@ def shutdown ():
   print 'shutdown'
 
 command = {
-  0 : put,
-  1 : get,
-  2 : remove,
-  3 : shutdown
+  1 : put,
+  2 : get,
+  3 : remove,
+  4 : shutdown
 }
 
 response_status = {
