@@ -45,18 +45,17 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  size = struct.unpack_from('<i',received, 1)
-  
-  print size[0]
-
   r = list(received)
-  for i in range(0, 20):
+  for i in range(0, 16):
     r.pop(0)
 
+  r = ''.join(r)
+
+  size = struct.unpack_from('<i', r)[0]
   payload = []
 
-  for i in range(size[0]):
-    payload.append(r[i])
+  for i in range(size):
+    payload.append(r[i+4])
 
   return payload
 
@@ -90,8 +89,6 @@ def sendRequest (dataPayload, server_address):
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
 
-      print len(data)
-
       #if parseID(rID, data):
       if len(data) >= 16:
         done = True
@@ -105,7 +102,7 @@ def sendRequest (dataPayload, server_address):
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 def assembleMessage(commandNum,keyString,valueString):
-    #Define each byte array with fixed size.
+    #Define each byte array with fixed size.git di
     messageBuff = bytearray()
     commandBuff = bytearray(1)
     keyBuff = bytearray(32)
@@ -142,7 +139,7 @@ server_address = ('localhost', 7780)
 
 
 #Test Case setting
-command = 1
+command = 2
 key = "yolo1234"
 value = "They hate us cuz they ain't us"
 
@@ -152,4 +149,6 @@ message=assembleMessage(command,key,value)
 data = sendRequest(message, server_address)
 
 if data:
-  parsePayload(data)
+  payload = parsePayload(data)
+
+  print ''.join(payload);

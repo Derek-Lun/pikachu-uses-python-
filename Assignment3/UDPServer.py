@@ -9,7 +9,8 @@ cache_request = []
 
 def put (request):
   print 'put'
-  data.update(request['key'], request['value'])
+  d = {request['key']: request['value']}
+  data.update(d)
   return 'success', None
 
 def get (request):
@@ -40,7 +41,7 @@ response_status = {
   'dne': 1,
   'oos': 2,
   'sys_overload': 3,
-  'internal_failutre': 4,
+  'internal_failure': 4,
   'do_not_recognize': 5
 }
 
@@ -51,9 +52,9 @@ def parseCommand (recv):
     request['header'] = recv[0:15]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    request['key'] = recv[17:49]
+    request['key'] = recv[17:49].split(b'\0',1)[0]
 
-    if request['command'] == 0:
+    if request['command'] == 1:
       length = struct.unpack_from('<h', recv, 49)
       begin = 51
       request['value'] = recv[begin:begin+length[0]]
