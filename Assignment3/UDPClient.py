@@ -90,8 +90,10 @@ def sendRequest (dataPayload, server_address):
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
 
+      print len(data)
+
       #if parseID(rID, data):
-      if data:
+      if len(data) >= 16:
         done = True
 
         return data

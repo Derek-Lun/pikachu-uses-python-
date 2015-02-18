@@ -71,9 +71,10 @@ def createReply (request,status, value = None):
 
   if value:
     length = len(value)
-
-  if value:
+    reply.extend(struct.pack('<i', length))
     reply.extend(value)
+  else:
+    reply.extend(struct.pack('<i', 0))
     
   reply_str = "";  
   for i in reply:
