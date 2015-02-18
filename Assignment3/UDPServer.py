@@ -60,9 +60,9 @@ def parseCommand (recv):
 
   return request
 
-def createReply (status, value = None):
+def createReply (request,status, value = None):
   reply = bytearray()
-
+  reply.append(struct.pack(request['header'])
   reply.append(struct.pack('<b',response_status[status]))
 
   if value:
@@ -102,9 +102,8 @@ while True:
       #if (cacheMsg())
       func = command[req['command']]
       status,value = func(req) 
-      sock.sendto(createReply(status,value), address)
-
+      sock.sendto(createReply(req,status,value), address)
     else:
       print 'invalid command'
-      reply = createReply('do_not_recognize')
+      reply = createReply(req,'do_not_recognize')
       sock.sendto(reply, address)     
