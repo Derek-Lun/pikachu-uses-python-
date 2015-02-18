@@ -26,8 +26,9 @@ def remove (request):
     return 'success', None
   return 'dne', None 
 
-def shutdown ():
-  print 'shutdown'
+def shutdown (request):
+  operating = False
+  return 'success', None
 
 command = {
   1 : put,
@@ -103,14 +104,15 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7780)
+server_address = ('localhost', 7782)
 
 sock.bind(server_address)
 
+operating = True
 
 print "Listening on %s" % server_address[1]
 
-while True:
+while True and operating == True:
   rdata, address = sock.recvfrom(16384)
 
   if len(rdata) > 16:
@@ -120,8 +122,13 @@ while True:
       if cacheMsg(rdata[0:15]):
         func = command[req['command']]
         status,value = func(req) 
+        
         reply = createReply(req,status,value)
         sock.sendto(reply, address)
+        if req['command'] == 4 and response_status[status] == 0:
+          operating = False
+          print "Shutting down..."
+            
     else:
       print 'invalid command'
       reply = createReply(req,'do_not_recognize')

@@ -46,12 +46,15 @@ def parseID (original, received):
 
 def parsePayload (received):
   r = list(received)
-  for i in range(0, 16):
+  for i in range(0, 15):
     r.pop(0)
-
+  print '{0:08b}'.format(ord(r[0]))
+  r.pop(0)
+  
   r = ''.join(r)
 
   size = struct.unpack_from('<i', r)[0]
+
   payload = []
 
   for i in range(size):
@@ -135,13 +138,13 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7780)
+server_address = ('localhost', 7782)
 
 
 #Test Case setting
-command = 2
-key = "yolo1234"
-value = "They hate us cuz they ain't us"
+command = 4
+key = "yolo12354"
+value = "They hate us cuz \"they ain't us"
 
 #Assemble a sending message
 message=assembleMessage(command,key,value)
