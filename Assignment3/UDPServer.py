@@ -1,5 +1,8 @@
 import socket
 import struct
+from threading import Timer
+
+
 
 data = {}
 cache_request = []
@@ -77,17 +80,23 @@ def createReply (request,status, value = None):
     reply_str = reply_str.join(str(reply[index]))
   return reply_str
 
-def cacheMsg(msg):
-  print cache_request
-  if msg in cache_request:
-    cache_request.remove(msg)
+def cacheMsg(id):
+
+  if id in cache_request:
+    removeCache(id)
     return True
   else:
-    cache_request.append(msg)
-    t = Timer(5.0, cache_request.remove(msg))
+    cache_request.append(id)
+
+    t = Timer(5.0, removeCache,[id])
     t.start()
     return False
 
+def removeCache(id):
+  if id in cache_request:
+    cache_request.remove(id)
+  
+  
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -100,7 +109,6 @@ print "Listening on %s" % server_address[1]
 
 while True:
   rdata, address = sock.recvfrom(16384)
-
 
   if len(rdata) > 16:
     req = parseCommand(rdata)
