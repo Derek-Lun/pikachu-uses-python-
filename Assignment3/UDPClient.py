@@ -138,11 +138,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7783)
+server_address = ('localhost', 7785)
 
 
 #Test Case setting
-command = 4
+command = 5
 key = "yolo12354"
 value = "They hate us cuz \"they ain't us"
 

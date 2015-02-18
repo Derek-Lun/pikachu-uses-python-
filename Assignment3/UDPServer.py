@@ -106,7 +106,7 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7783)
+server_address = ('localhost', 7785)
 
 sock.bind(server_address)
 
@@ -129,5 +129,5 @@ while True and operating == True:
         sock.sendto(reply, address)
     else:
       print 'invalid command'
-      reply = createReply(req,'do_not_recognize')
+      reply = createReply(req,'do_not_recognize',None)
       sock.sendto(reply, address)     
