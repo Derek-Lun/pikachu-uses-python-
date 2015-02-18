@@ -106,7 +106,7 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7785)
+server_address = ('localhost', 7787)
 
 sock.bind(server_address)
 
@@ -121,7 +121,7 @@ while True and operating == True:
     req = parseCommand(rdata)
     print req
     if req['command'] in command:
-      if cacheMsg(rdata[0:15]):
+      #if cacheMsg(rdata[0:15]):
         func = command[req['command']]
         status,value = func(req) 
         

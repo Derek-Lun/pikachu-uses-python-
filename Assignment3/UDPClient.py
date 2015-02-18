@@ -105,9 +105,9 @@ def sendRequest (dataPayload, server_address):
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 def assembleMessage(commandNum,keyString,valueString):
-    if(commandNum not in (1,2,3,4)):
-      print "Error: Invalid input. Choose one of the commands: 1 (put),2 (get),3 (remove),4(shutdown)"
-      sys.exit()
+    #if(commandNum not in (1,2,3,4)):
+    #  print "Error: Invalid input. Choose one of the commands: 1 (put),2 (get),3 (remove),4(shutdown)"
+    #  sys.exit()
 	
     #Define each byte array with fixed size.git di
     messageBuff = bytearray()
@@ -142,11 +142,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7785)
+server_address = ('localhost', 7787)
 
 
 #Test Case setting
-command = 5
+command = 3
 key = "yolo12354"
 value = "They hate us cuz \"they ain't us"
 
