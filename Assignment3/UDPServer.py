@@ -73,8 +73,9 @@ def createReply (request,status, value = None):
     reply.extend(value)
     
   reply_str = "";  
-  for index in range(len(reply)):
-    reply_str = reply_str.join(str(reply[index]))
+  for i in reply:
+    reply_str = reply_str + struct.pack('<B',i)
+
   return reply_str
 
 def cacheMsg(msg):
@@ -106,7 +107,8 @@ while True:
       #if (cacheMsg())
       func = command[req['command']]
       status,value = func(req) 
-      sock.sendto(createReply(req,status,value), address)
+      reply = createReply(req,status,value)
+      sock.sendto(reply, address)
     else:
       print 'invalid command'
       reply = createReply(req,'do_not_recognize')

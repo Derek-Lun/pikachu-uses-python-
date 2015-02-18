@@ -93,6 +93,7 @@ def sendRequest (dataPayload, server_address):
       #if parseID(rID, data):
       if data:
         done = True
+
         return data
     except socket.error:
       if numTries > 3:
@@ -145,11 +146,8 @@ value = "They hate us cuz they ain't us"
 
 #Assemble a sending message
 message=assembleMessage(command,key,value)
-
-
 	
 data = sendRequest(message, server_address)
 
 if data:
-  print data
   parsePayload(data)
