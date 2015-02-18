@@ -138,7 +138,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7782)
+server_address = ('localhost', 7783)
 
 
 #Test Case setting

@@ -27,7 +27,9 @@ def remove (request):
   return 'dne', None 
 
 def shutdown (request):
+  global operating
   operating = False
+  print "Shutting down..."
   return 'success', None
 
 command = {
@@ -104,7 +106,7 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7782)
+server_address = ('localhost', 7783)
 
 sock.bind(server_address)
 
@@ -125,10 +127,6 @@ while True and operating == True:
         
         reply = createReply(req,status,value)
         sock.sendto(reply, address)
-        if req['command'] == 4 and response_status[status] == 0:
-          operating = False
-          print "Shutting down..."
-            
     else:
       print 'invalid command'
       reply = createReply(req,'do_not_recognize')
