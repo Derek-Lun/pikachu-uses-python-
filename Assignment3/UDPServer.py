@@ -44,6 +44,7 @@ def parseCommand (recv):
   request = {}
 
   try:
+    request['header'] = recv[0:15]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
     request['key'] = recv[17:49]
@@ -100,6 +101,7 @@ while True:
       func = command[req['command']]
       status,value = func(req) 
       sock.sendto(createReply(status,value), address)
+
     else:
       print 'invalid command'
       reply = createReply('do_not_recognize')
