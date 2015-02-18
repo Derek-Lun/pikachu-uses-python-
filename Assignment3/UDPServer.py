@@ -1,38 +1,39 @@
 import socket
 import struct
 from threading import Timer
-
+import binascii
 
 
 data = {}
 cache_request = {}
 
 def put (request):
-  print 'put'
+  print 'Operation: put'
   d = {request['key']: request['value']}
   data.update(d)
   return 'success', None
 
 def put_no_overwrite (request):
-  print 'put without overwrite'
+  print 'Operation: put without overwrite'
   if request['key'] not in data:
     return put(request)
   return 'key_exist', None
 
 def get (request):
-  print 'get'
+  print 'Operation: get'
   if request['key'] in data:
     return 'success', data.get(request['key'])
   return 'dne', None 
 
 def remove (request):
-  print 'remove'
+  print 'Operation: remove'
   if request['key'] in data:
     data.pop(request['key'], None)
     return 'success', None
   return 'dne', None 
 
 def shutdown (request):
+  print 'Operation: shutdown'
   global operating
   operating = False
   print "Shutting down..."
@@ -105,14 +106,14 @@ def cacheMsg(id,reply = None):
 
 def removeCache(id):
   if id in cache_request:
-    print "Removing cache with id: " + id
+    print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
   
   
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7785)
+server_address = ('localhost', 7790)
 
 sock.bind(server_address)
 
@@ -128,6 +129,7 @@ while True and operating == True:
         cache = cacheMsg(rdata[0:15])
         if not cache:
             req = parseCommand(rdata)
+            print "Received: ", 
             print req
             if req['command'] in command:
               
@@ -143,7 +145,7 @@ while True and operating == True:
                 reply = createReply(req,'do_not_recognize',None)
                 sock.sendto(reply, address) 
         else:
-            print "cache:"+cache
             sock.sendto(cache, address)    
-  except: 
-      print "Socket closed"
+  except socket.error: 
+      #print "Socket closed"
+      pass
