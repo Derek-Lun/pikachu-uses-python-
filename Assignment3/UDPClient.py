@@ -105,7 +105,7 @@ def sendRequest (dataPayload, server_address):
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 def assembleMessage(commandNum,keyString,valueString):
-    if(commandNum not in (1,2,3,4)):
+    if(commandNum not in (1,2,3,4, 32)):
       print "Error: Invalid input. Choose one of the commands: 1 (put),2 (get),3 (remove),4(shutdown)"
       sys.exit()
 	
@@ -146,7 +146,7 @@ server_address = ('localhost', 7785)
 
 
 #Test Case setting
-command = 5
+command = 32
 key = "yolo12354"
 value = "They hate us cuz \"they ain't us"
 

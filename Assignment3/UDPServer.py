@@ -13,6 +13,12 @@ def put (request):
   data.update(d)
   return 'success', None
 
+def put_no_overwrite (request):
+  print 'put without overwrite'
+  if request['key'] not in data:
+    return put(request)
+  return 'key_exist', None
+
 def get (request):
   print 'get'
   if request['key'] in data:
@@ -36,7 +42,8 @@ command = {
   1 : put,
   2 : get,
   3 : remove,
-  4 : shutdown
+  4 : shutdown,
+  32 : put_no_overwrite
 }
 
 response_status = {
@@ -45,7 +52,8 @@ response_status = {
   'oos': 2,
   'sys_overload': 3,
   'internal_failure': 4,
-  'do_not_recognize': 5
+  'do_not_recognize': 5,
+  'key_exist' : 32
 }
 
 def parseCommand (recv):
@@ -57,7 +65,7 @@ def parseCommand (recv):
     request['command'] = request['command'][0]
     request['key'] = recv[17:49].split(b'\0',1)[0]
 
-    if request['command'] == 1:
+    if request['command'] == 1 or request['command'] == 32:
       length = struct.unpack_from('<h', recv, 49)
       begin = 51
       request['value'] = recv[begin:begin+length[0]]
