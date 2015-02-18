@@ -5,7 +5,7 @@ from threading import Timer
 
 
 data = {}
-cache_request = []
+cache_request = {}
 
 def put (request):
   print 'put'
@@ -94,21 +94,19 @@ def createReply (request,status, value = None):
 
   return reply_str
 
-def cacheMsg(id):
-
-  if id in cache_request:
-    removeCache(id)
-    return True
+def cacheMsg(id,reply = None):
+  if reply:
+    if not id in cache_request:
+        cache_request.update({id: reply})
+        t = Timer(5.0, removeCache,[id])
+        t.start()
   else:
-    cache_request.append(id)
-
-    t = Timer(5.0, removeCache,[id])
-    t.start()
-    return False
+    return cache_request.get(id)
 
 def removeCache(id):
   if id in cache_request:
-    cache_request.remove(id)
+    print "Removing cache with id: " + id
+    cache_request.pop(id, None)
   
   
 # Create a UDP socket
@@ -127,18 +125,25 @@ while True and operating == True:
       rdata, address = sock.recvfrom(16384)
 
       if len(rdata) > 16:
-        req = parseCommand(rdata)
-        print req
-        if req['command'] in command:
-          #if cacheMsg(rdata[0:15]):
-            func = command[req['command']]
-            status,value = func(req) 
-            
-            reply = createReply(req,status,value)
-            sock.sendto(reply, address)
+        cache = cacheMsg(rdata[0:15])
+        if not cache:
+            req = parseCommand(rdata)
+            print req
+            if req['command'] in command:
+              
+                func = command[req['command']]
+                status,value = func(req) 
+                
+                reply = createReply(req,status,value)
+                sock.sendto(reply, address)
+                cacheMsg(rdata[0:15],reply)
+
+            else:
+                print 'invalid command'
+                reply = createReply(req,'do_not_recognize',None)
+                sock.sendto(reply, address) 
         else:
-          print 'invalid command'
-          reply = createReply(req,'do_not_recognize',None)
-          sock.sendto(reply, address)     
+            print "cache:"+cache
+            sock.sendto(cache, address)    
   except: 
       print "Socket closed"
