@@ -74,11 +74,14 @@ def createReply (request,status, value = None):
   return reply_str
 
 def cacheMsg(msg):
+  print cache_request
   if msg in cache_request:
     cache_request.remove(msg)
     return True
   else:
     cache_request.append(msg)
+    t = Timer(5.0, cache_request.remove(msg))
+    t.start()
     return False
 
 # Create a UDP socket
@@ -99,10 +102,10 @@ while True:
     req = parseCommand(rdata)
     print req
     if req['command'] in command:
-      #if (cacheMsg())
-      func = command[req['command']]
-      status,value = func(req) 
-      sock.sendto(createReply(req,status,value), address)
+      if cacheMsg(rdata[0:15]):
+        func = command[req['command']]
+        status,value = func(req) 
+        sock.sendto(createReply(req,status,value), address)
     else:
       print 'invalid command'
       reply = createReply(req,'do_not_recognize')
