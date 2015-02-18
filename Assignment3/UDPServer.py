@@ -61,8 +61,12 @@ def parseCommand (recv):
 
 def createReply (request,status, value = None):
   reply = bytearray()
-  reply.append(struct.pack(request['header'])
+  for i in request['header']:
+    reply.append(i)
   reply.append(struct.pack('<b',response_status[status]))
+
+  if value:
+    length = len(value)
 
   if value:
     reply.extend(value)
