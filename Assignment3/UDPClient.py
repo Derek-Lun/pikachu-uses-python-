@@ -146,12 +146,8 @@ localport = 4000
 server_address = ('localhost', 7787)
 
 
-#Test Case setting
-<<<<<<< HEAD
-command = 3
-=======
+
 command = 32
->>>>>>> 44e3ac5b8e6fd16feefc776d740d32a6b5792331
 key = "yolo12354"
 value = "They hate us cuz \"they ain't us"
 
