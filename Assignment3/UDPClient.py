@@ -147,7 +147,7 @@ server_address = ('localhost', 7787)
 
 
 
-command = 32
+command = 2
 key = "yolo12354"
 value = "They hate us cuz \"they ain't us"
 

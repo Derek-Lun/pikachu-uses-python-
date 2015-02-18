@@ -123,19 +123,22 @@ operating = True
 print "Listening on %s" % server_address[1]
 
 while True and operating == True:
-  rdata, address = sock.recvfrom(16384)
+  try:
+      rdata, address = sock.recvfrom(16384)
 
-  if len(rdata) > 16:
-    req = parseCommand(rdata)
-    print req
-    if req['command'] in command:
-      #if cacheMsg(rdata[0:15]):
-        func = command[req['command']]
-        status,value = func(req) 
-        
-        reply = createReply(req,status,value)
-        sock.sendto(reply, address)
-    else:
-      print 'invalid command'
-      reply = createReply(req,'do_not_recognize',None)
-      sock.sendto(reply, address)     
+      if len(rdata) > 16:
+        req = parseCommand(rdata)
+        print req
+        if req['command'] in command:
+          #if cacheMsg(rdata[0:15]):
+            func = command[req['command']]
+            status,value = func(req) 
+            
+            reply = createReply(req,status,value)
+            sock.sendto(reply, address)
+        else:
+          print 'invalid command'
+          reply = createReply(req,'do_not_recognize',None)
+          sock.sendto(reply, address)     
+  except: 
+      print "Socket closed"
