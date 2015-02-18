@@ -45,7 +45,8 @@ def parseID (original, received):
   return match
 
 def parsePayload (received):
-  size = struct.unpack_from('<i',received, 16)
+  size = struct.unpack_from('<i',received, 1)
+  
   print size[0]
 
   r = list(received)
@@ -89,7 +90,8 @@ def sendRequest (dataPayload, server_address):
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
 
-      if parseID(rID, data):
+      #if parseID(rID, data):
+      if data:
         done = True
         return data
     except socket.error:
@@ -133,7 +135,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 localport = 4000
 
-server_address = ('localhost', 7778)
+server_address = ('localhost', 7779)
 
 
 #Test Case setting
@@ -149,4 +151,5 @@ message=assembleMessage(command,key,value)
 data = sendRequest(message, server_address)
 
 if data:
+  print data
   parsePayload(data)

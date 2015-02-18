@@ -82,7 +82,7 @@ def cacheMsg(msg):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7778)
+server_address = ('localhost', 7779)
 
 sock.bind(server_address)
 
@@ -98,10 +98,9 @@ while True:
     print req
     if req['command'] in command:
       func = command[req['command']]
-      value, status = func(req) 
-      sock.sendto(reply, address)
+      status,value = func(req) 
+      sock.sendto(createReply(status,value), address)
     else:
       print 'invalid command'
       reply = createReply('do_not_recognize')
-      print "send this: %s" % reply
       sock.sendto(reply, address)     
