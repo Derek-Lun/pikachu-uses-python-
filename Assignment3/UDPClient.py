@@ -105,47 +105,33 @@ def sendRequest (dataPayload, server_address):
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 def assembleMessage(commandNum,keyString,valueString):
-  timeoutInterval = 500
-  numTries = 1
-  done = False
+    #Define each byte array with fixed size.git di
+    messageBuff = bytearray()
+    commandBuff = bytearray(1)
+    keyBuff = bytearray(32)
+    vLengthBuff = bytearray(2)
+    valueBuff = bytearray(15000)
 
-  data = requestID()
 
-  rID = bytearray()
+    #Put value in byte array
 
-  for i in data:
-    rID.append(i);
+    commandBuff = struct.pack ('<b',commandNum)
+    
+
+    index = 0
+    for letter in keyString:    
+        struct.pack_into('<s',keyBuff,index,letter)
+        index += 1
 	
-  data.extend(dataPayload)
+	valueBuff=valueString
+    vLengthBuff = struct.pack ('<h',len(valueString))
 
-  while (not done) and numTries <= 3:
-    try:
-      # Send data
-      print 'sending data'
-
-      print 'Trying %s time' %numTries
-      sent = sock.sendto(data, server_address)
-
-      numTries += 1
-
-      # Receive response
-      print 'waiting to receive'
-
-      sock.settimeout(timeoutInterval/1000)
-      data, server = sock.recvfrom(16384)
-
-      #if parseID(rID, data):
-      if len(data) >= 16:
-        done = True
-
-        return data
-    except socket.error:
-      if numTries > 3:
-        print 'Exceed maximum of tries, server may be down.'
-        break;
-      timeoutInterval *= 2
-      print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
-
+    messageBuff.extend(commandBuff)
+    messageBuff.extend(keyBuff)
+    messageBuff.extend(vLengthBuff)
+    messageBuff.extend(valueBuff)
+	
+    return messageBuff	
 	  
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
