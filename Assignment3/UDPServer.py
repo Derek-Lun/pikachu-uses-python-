@@ -2,6 +2,7 @@ import socket
 import struct
 
 data = {}
+cache_request = []
 
 def put (request):
   print 'put'
@@ -83,11 +84,11 @@ def cacheMsg(msg):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7779)
+server_address = ('localhost', 7780)
 
 sock.bind(server_address)
 
-cache_request = []
+
 print "Listening on %s" % server_address[1]
 
 while True:
@@ -98,6 +99,7 @@ while True:
     req = parseCommand(rdata)
     print req
     if req['command'] in command:
+      #if (cacheMsg())
       func = command[req['command']]
       status,value = func(req) 
       sock.sendto(createReply(status,value), address)
