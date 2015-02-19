@@ -121,7 +121,7 @@ operating = True
 
 print "Listening on %s" % server_address[1]
 
-while True and operating == True:
+while operating == True:
   try:
       rdata, address = sock.recvfrom(16384)
 
