@@ -145,7 +145,11 @@ while operating == True:
                 reply = createReply(req,'do_not_recognize',None)
                 sock.sendto(reply, address) 
         else:
-            sock.sendto(cache, address)    
+            sock.sendto(cache, address)
+      else:
+        print 'invalid command'
+        reply = createReply(req,'do_not_recognize',None)
+        sock.sendto(reply, address)
   except socket.error: 
       #print "Socket closed"
       pass
