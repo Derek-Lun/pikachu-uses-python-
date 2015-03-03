@@ -38,6 +38,10 @@ def shutdown (request):
   print "Shutting down..."
   return 'success', None
 
+def no_operation(request):
+  print 'Operation: do not recognize'
+  return 'do_not_recognize', None
+
 command = {
   1 : put,
   2 : get,
@@ -71,7 +75,7 @@ def parseCommand (recv):
       request['value'] = recv[begin:begin+length[0]]
 
   except:
-    request['command'] = None
+    request['command'] = no_operation
 
   return request
 
@@ -121,33 +125,30 @@ operating = True
 print "Listening on %s" % server_address[1]
 
 while operating == True:
+  func = None
   try:
-      rdata, address = sock.recvfrom(16384)
-      if len(rdata) > 16:
-        cache = cacheMsg(rdata[0:16])
-        if not cache:
-            req = parseCommand(rdata)
-            print "Received: ", 
-            print req
-            if req['command'] in command:
-              
-                func = command[req['command']]
-                status,value = func(req) 
-                
-                reply = createReply(req,status,value)
-                sock.sendto(reply, address)
-                cacheMsg(rdata[0:16],reply)
-                print list(data)
-            else:
-                print 'invalid command'
-                reply = createReply(req,'do_not_recognize',None)
-                sock.sendto(reply, address) 
-        else:
-            sock.sendto(cache, address)
-      else:
-        print 'invalid command'
-        reply = createReply(req,'do_not_recognize',None)
-        sock.sendto(reply, address)
+    rdata, address = sock.recvfrom(16384)
+
+    try:
+      cache = cacheMsg(rdata[0:16])
+      if cache:
+        sock.sendto(cache, address)
+        continue
+
+      req = parseCommand(rdata)
+      print "Received: ", 
+      print req
+
+      func = command[req['command']]
+    except:
+      func = no_operation
+
+    status,value = func(req) 
+    
+    reply = createReply(req,status,value)
+    sock.sendto(reply, address)
+    cacheMsg(rdata[0:16],reply)
+
   except socket.error: 
       #print "Socket closed"
       pass
