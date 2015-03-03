@@ -117,6 +117,7 @@ def runTestCases(server_address):
           assert res_code == 0
           data = sendRequest(assembleMessage(2,'\'MM\',`~-'), server_address)
           res_code,payload = parsePayload(data)
+          print ''.join(payload)
           assert ''.join(payload) == value
           print "\nPassed\n"
         else:
@@ -279,7 +280,7 @@ def runTestCases(server_address):
         print "\nFailed\n"   
     # Remove - key with the maximum length
     try:
-        print "Test Case: put - key with the maximum length"
+        print "Test Case: remove - key with the maximum length"
         key = ""
         for i in range(0,32):
             key += '*'
@@ -289,6 +290,7 @@ def runTestCases(server_address):
         data = sendRequest(assembleMessage(2,key), server_address)
         if data:
           res_code,payload = parsePayload(data)
+          print ''.join(payload)
           assert res_code == 1
           print "\nPassed\n"
         else:
