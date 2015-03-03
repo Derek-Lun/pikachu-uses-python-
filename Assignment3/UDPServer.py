@@ -3,7 +3,6 @@ import struct
 from threading import Timer
 import binascii
 
-
 data = {}
 cache_request = {}
 
