@@ -113,15 +113,15 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ('localhost', 7790)
+server_address = ("0.0.0.0", 7790)
 
-sock.bind(server_address)
+sock.bind(server_address) 
 
 operating = True
 
 print "Listening on %s" % server_address[1]
 
-while True and operating == True:
+while operating == True:
   try:
       rdata, address = sock.recvfrom(16384)
       if len(rdata) > 16:
@@ -144,7 +144,11 @@ while True and operating == True:
                 reply = createReply(req,'do_not_recognize',None)
                 sock.sendto(reply, address) 
         else:
-            sock.sendto(cache, address)    
+            sock.sendto(cache, address)
+      else:
+        print 'invalid command'
+        reply = createReply(req,'do_not_recognize',None)
+        sock.sendto(reply, address)
   except socket.error: 
       #print "Socket closed"
       pass
