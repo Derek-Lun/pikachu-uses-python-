@@ -2,45 +2,53 @@ import socket
 import struct
 from threading import Timer
 import binascii
+from Queue import Queue
 
+results_queue = Queue()
 data = {}
 cache_request = {}
 
 def put (request):
   print 'Operation: put'
+  global results_queue
   d = {request['key']: request['value']}
   data.update(d)
-  return 'success', None
+  results_queue.put((request, 'success', None))
 
 def put_no_overwrite (request):
   print 'Operation: put without overwrite'
+  global results_queue
   if request['key'] not in data:
-    return put(request)
-  return 'key_exist', None
+    put(request)
+  results_queue.put((request, 'key_exist', None))
 
 def get (request):
   print 'Operation: get'
+  global results_queue
   if request['key'] in data:
-    return 'success', data.get(request['key'])
-  return 'dne', None 
+    results_queue.put((request,'success', data.get(request['key'])))
+  results_queue.put((request, 'dne', None))
 
 def remove (request):
   print 'Operation: remove'
+  global results_queue
   if request['key'] in data:
     data.pop(request['key'], None)
-    return 'success', None
-  return 'dne', None 
+    results_queue.put((request, 'success', None))
+  results_queue.put((request, 'dne', None))
 
 def shutdown (request):
   print 'Operation: shutdown'
+  global results_queue
   global operating
   operating = False
   print "Shutting down..."
-  return 'success', None
+  results_queue.put((request, 'success', None))
 
 def no_operation(request):
   print 'Operation: do not recognize'
-  return 'do_not_recognize', None
+  global results_queue
+  results_queue.put((request, 'do_not_recognize', None))
 
 command = {
   1 : put,
@@ -60,8 +68,9 @@ response_status = {
   'key_exist' : 32
 }
 
-def parseCommand (recv):
+def parseCommand (recv, address):
   request = {}
+  request['address'] = address
 
   try:
     request['header'] = recv[0:16]
@@ -125,17 +134,23 @@ operating = True
 print "Listening on %s" % server_address[1]
 
 while operating == True:
-  func = None
+  
+  if not results_queue.empty():
+    result = results_queue.get()
+    reply = createReply(result[0], result[1], result[2])
+    sock.sendto(reply, result[0]['address'])
+    cacheMsg(rdata[0:16],reply)
+
   try:
     rdata, address = sock.recvfrom(16384)
-
+    func = None
     try:
       cache = cacheMsg(rdata[0:16])
       if cache:
         sock.sendto(cache, address)
         continue
 
-      req = parseCommand(rdata)
+      req = parseCommand(rdata, address)
       print "Received: ", 
       print req
 
@@ -143,12 +158,7 @@ while operating == True:
     except:
       func = no_operation
 
-    status,value = func(req) 
-    
-    reply = createReply(req,status,value)
-    sock.sendto(reply, address)
-    cacheMsg(rdata[0:16],reply)
-
+    func(req) 
   except socket.error: 
       #print "Socket closed"
       pass
