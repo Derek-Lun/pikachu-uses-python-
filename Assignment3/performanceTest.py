@@ -1,6 +1,7 @@
 from communication import *
 # Run the test cases and print out the result
 def runTestCases(server_address):
+    print "\n===============================Performance Test===============================\n"
     # TEST CASES FOR INVALID FORMAT OF THE MESSAGE
     #
     #
@@ -12,7 +13,7 @@ def runTestCases(server_address):
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 5
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -28,7 +29,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,"1",""), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "456"
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -41,10 +42,10 @@ def runTestCases(server_address):
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,"/\\/\\/"), server_address)
+          data = sendRequest(assembleMessage(2,""), server_address)
           res_code,payload = parsePayload(data)
-          assert ''.join(payload) == ""
-          print "Passed\n"
+          assert ''.join(payload) == "/\\/\\/"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -60,7 +61,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,"P.;"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == ""
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -73,22 +74,23 @@ def runTestCases(server_address):
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(1,"1","{}'"), server_address)
+          sendRequest(assembleMessage(1,"1","{}'"), server_address)
+          data = sendRequest(assembleMessage(2,"1"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "{}'"
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
     except AssertionError:
         print "\nFailed\n"    
-    # Put - key with a very large length
+    # Put - key with the maximum length
     try:
-        print "Test Case: put - key with a very large length"
+        print "Test Case: put - key with the maximum length"
         key = ""
-        for i in range(0,100000):
+        for i in range(0,32):
             key += '1'
-        print "Key to be sent: " + key
+        #print "Key to be sent: " + key
         data = sendRequest(assembleMessage(1,key,":lX"), server_address)
         if data:
           res_code,payload = parsePayload(data)
@@ -96,7 +98,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,key), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == ":lX"
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -104,11 +106,11 @@ def runTestCases(server_address):
         print "\nFailed\n"        
     # Put - value with a very long length
     try:
-        print "Test Case: put - value with a very large length"
+        print "Test Case: put - value with the maximum length"
         value = ""
-        for i in range(0,100000):
-            value += '1'
-        print "Value to be sent: " + value
+        for i in range(0,15000):
+            value += '2'
+        #print "Value to be sent: " + value
         data = sendRequest(assembleMessage(1,'\'MM\',`~-',value), server_address)
         if data:
           res_code,payload = parsePayload(data)
@@ -116,7 +118,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,'\'MM\',`~-'), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == value
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -133,7 +135,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,"4"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "ab&"
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -141,7 +143,7 @@ def runTestCases(server_address):
         print "\nFailed\n"    
     # Put without overwrite - empty key
     try:
-        print "Test Case: put - empty value"
+        print "Test Case: put without overwrite - empty value"
         data = sendRequest(assembleMessage(3,""), server_address)
         if data:
           data = sendRequest(assembleMessage(32,"","..."), server_address)
@@ -150,7 +152,7 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,""), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "..."
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -161,13 +163,13 @@ def runTestCases(server_address):
         print "Test Case: put without overwrite - empty value"
         data = sendRequest(assembleMessage(3,"^"), server_address)
         if data:
-          data = sendRequest(assembleMessage(32,"^","88"), sever_address)
+          data = sendRequest(assembleMessage(32,"^",""), server_address)
           res_code,payload = parsePayload(data)
           assert res_code == 0
           data = sendRequest(assembleMessage(2,"^"), server_address)
           res_code,payload = parsePayload(data)
-          assert ''.join(payload) == "88"
-          print "Passed\n"
+          assert ''.join(payload) == ""
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
@@ -184,19 +186,19 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(32,"0","xp*"), server_address)
           res_code,payload = parsePayload(data)
           assert res_code == 32
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
     except AssertionError:
         print "\nFailed\n"       
-    # Put without overwrite - key with a very large length
+    # Put without overwrite - key with the maximum length
     try:
-        print "Test Case: put without overwrite - key with a very large length"
+        print "Test Case: put without overwrite - key with the maximum length"
         key = ""
-        for i in range(0,100000):
-            key += '2'
-        print "Key to be sent: " + key
+        for i in range(0,32):
+            key += '3'
+        #print "Key to be sent: " + key
         data = sendRequest(assembleMessage(3,key), server_address)
         if data:
           data = sendRequest(assembleMessage(1,key,"ppp"), server_address)
@@ -205,37 +207,111 @@ def runTestCases(server_address):
           data = sendRequest(assembleMessage(2,key), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "ppp"
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
     except AssertionError:
         print "\nFailed\n"            
-    # Put without overwrite - value with a very large length  
+    # Put without overwrite - value with a large length  
     try:
-        print "Test Case: put - value with a very large length"
+        print "Test Case: put without overwrite - value with the maximum length"
         value = ""
-        for i in range(0,100000):
-            value += '1'
-        print "Value to be sent: " + value
-        data = sendRequest(assembleMessage(3,'\'M\',`~-'), server_address)
+        for i in range(0,15000):
+            value += '4'
+        #print "Value to be sent: " + value
+        data = sendRequest(assembleMessage(3,'\'M\fsdfdsfsdfdasfasff'), server_address)
         if data:
-          data = sendRequest(assembleMessage(1,'\'M\',`~-',value), server_address)
+          data = sendRequest(assembleMessage(1,'\'M\fsdfdsfsdfdasfasff',value), server_address)
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,'\'M\',`~-'), server_address)
+          data = sendRequest(assembleMessage(2,'\'M\fsdfdsfsdfdasfasff','~-'), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == value
-          print "Passed\n"
+          print "\nPassed\n"
         else:
             print "No response received."
             assert False
     except AssertionError:
         print "\nFailed\n"            
     # Get - non-existing key
-
+    try:
+        print "Test Case: get - non-existing key"
+        sendRequest(assembleMessage(3,'f[pkpaksf\''), server_address)
+        data = sendRequest(assembleMessage(2,"f[pkpaksf\'"), server_address)
+        if data:
+          res_code,payload = parsePayload(data)
+          assert res_code == 1
+          print "\nPassed\n"
+        else:
+            print "No response received."
+            assert False
+    except AssertionError:
+        print "\nFailed\n"
     # Remove - success case
+    try:
+        print "Test Case: remove - success case"
+        sendRequest(assembleMessage(1,'f[',"abc"), server_address)
+        sendRequest(assembleMessage(3,"f["), server_address)
+        data = sendRequest(assembleMessage(2,"f["), server_address)
+        if data:
+          res_code,payload = parsePayload(data)
+          assert res_code == 1
+          print "\nPassed\n"
+        else:
+            print "No response received."
+            assert False
+    except AssertionError:
+        print "\nFailed\n"
     # Remove - non-existing (key,value)
-    # Remove - key with a very large length
+    try:
+        print "Test Case: remove - non-existing (key,value)"
+        sendRequest(assembleMessage(3,'f++'), server_address)
+        data = sendRequest(assembleMessage(3,"f++"), server_address)
+        if data:
+          res_code,payload = parsePayload(data)
+          assert res_code == 1
+          print "\nPassed\n"
+        else:
+            print "No response received."
+            assert False
+    except AssertionError:
+        print "\nFailed\n"   
+    # Remove - key with the maximum length
+    try:
+        print "Test Case: put - key with the maximum length"
+        key = ""
+        for i in range(0,32):
+            key += '*'
+        #print "Key to be sent: " + key
+        sendRequest(assembleMessage(1,key,":"), server_address)
+        sendRequest(assembleMessage(3,key), server_address)
+        data = sendRequest(assembleMessage(2,key), server_address)
+        if data:
+          res_code,payload = parsePayload(data)
+          assert res_code == 1
+          print "\nPassed\n"
+        else:
+            print "No response received."
+            assert False
+    except AssertionError:
+        print "\nFailed\n"            
     # Out of Space error - Put 100001 (key,pair)
+#     try:
+#         print "Test Case: Out of Space"
+#         key = ""
+#         for i in range(0,100001):
+#             sendRequest(assembleMessage(1,str(i),"abc"), server_address)
+#         #print "Key to be sent: " + key
+#         data = sendRequest(assembleMessage(1,"max",";;"), server_address)
+#         if data:
+#           res_code,payload = parsePayload(data)
+#           assert res_code == 2
+#           print "\nPassed\n"
+#         else:
+#             print "No response received."
+#             assert False
+#     except AssertionError:
+#         print "\nFailed\n"            
+    
     # shutdown - success case

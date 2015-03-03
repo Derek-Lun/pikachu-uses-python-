@@ -103,7 +103,7 @@ def sendRequest (dataPayload, server_address):
     except socket.error:
       if numTries > 3:
         print 'Exceed maximum of tries, server may be down.'
-        break;
+        break
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
@@ -119,7 +119,6 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     #Put value in byte array
 
     commandBuff = struct.pack ('<b',commandNum)
-    
 
     index = 0
     for letter in keyString:    
@@ -128,7 +127,7 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
 
     messageBuff.extend(commandBuff)
     messageBuff.extend(keyBuff)
-    
+
     if valueString:
         valueBuff=valueString
         vLengthBuff = struct.pack ('<h',len(valueString))
