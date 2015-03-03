@@ -3,6 +3,7 @@ import struct
 from threading import Timer
 import binascii
 from Queue import Queue
+from threading import Thread
 
 results_queue = Queue()
 data = {}
@@ -158,7 +159,10 @@ while operating == True:
     except:
       func = no_operation
 
-    func(req) 
+    task = Thread(target=func, args=((req),))
+    task.start()
+    task.join()
+
   except socket.error: 
       #print "Socket closed"
       pass
