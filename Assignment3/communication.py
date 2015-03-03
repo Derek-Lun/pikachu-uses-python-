@@ -125,13 +125,14 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     for letter in keyString:    
         struct.pack_into('<s',keyBuff,index,letter)
         index += 1
-    
-    valueBuff=valueString
-    vLengthBuff = struct.pack ('<h',len(valueString))
 
     messageBuff.extend(commandBuff)
     messageBuff.extend(keyBuff)
-    messageBuff.extend(vLengthBuff)
-    messageBuff.extend(valueBuff)
+    
+    if valueString:
+        valueBuff=valueString
+        vLengthBuff = struct.pack ('<h',len(valueString))
+        messageBuff.extend(vLengthBuff)
+        messageBuff.extend(valueBuff)
     
     return messageBuff    

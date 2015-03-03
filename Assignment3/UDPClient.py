@@ -21,6 +21,8 @@ while operating == True:
                 if command == 1:
                     print "Enter the value:"
                     value = raw_input()
+                else:
+                    value = None
             
             #Assemble a sending message
             message=assembleMessage(command,key,value)
