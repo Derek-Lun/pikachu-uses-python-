@@ -3,7 +3,6 @@ import struct
 from threading import Timer
 import binascii
 
-
 data = {}
 cache_request = {}
 
@@ -61,7 +60,7 @@ def parseCommand (recv):
   request = {}
 
   try:
-    request['header'] = recv[0:15]
+    request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
     request['key'] = recv[17:49].split(b'\0',1)[0]
@@ -125,7 +124,7 @@ while operating == True:
   try:
       rdata, address = sock.recvfrom(16384)
       if len(rdata) > 16:
-        cache = cacheMsg(rdata[0:15])
+        cache = cacheMsg(rdata[0:16])
         if not cache:
             req = parseCommand(rdata)
             print "Received: ", 
@@ -137,7 +136,7 @@ while operating == True:
                 
                 reply = createReply(req,status,value)
                 sock.sendto(reply, address)
-                cacheMsg(rdata[0:15],reply)
+                cacheMsg(rdata[0:16],reply)
                 print list(data)
             else:
                 print 'invalid command'
