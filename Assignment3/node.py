@@ -6,6 +6,21 @@ class Node(object):
 	def __init__(self):
 		raise NotImplementedError
 
+	def put(self,key,value):
+		raise NotImplementedError
+
+	def put_no_overwrite(self,key,value):
+		raise NotImplementedError
+
+	def get(self, key):
+		raise NotImplementedError
+
+	def remove(self,key):
+		raise NotImplementedError
+
+	def shutdown(self):
+		raise NotImplementedError
+
 	def report_alive(self):
 		raise NotImplementedError
 
