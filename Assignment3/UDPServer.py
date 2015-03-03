@@ -124,7 +124,6 @@ print "Listening on %s" % server_address[1]
 while True and operating == True:
   try:
       rdata, address = sock.recvfrom(16384)
-
       if len(rdata) > 16:
         cache = cacheMsg(rdata[0:15])
         if not cache:
@@ -139,7 +138,7 @@ while True and operating == True:
                 reply = createReply(req,status,value)
                 sock.sendto(reply, address)
                 cacheMsg(rdata[0:15],reply)
-
+                print list(data)
             else:
                 print 'invalid command'
                 reply = createReply(req,'do_not_recognize',None)
