@@ -36,6 +36,9 @@ class Node(object):
     else:
       return 'dne', None
 
+  def address(self):
+    return self.host + ":" + str(self.port)
+
   def report_alive(self):
     raise NotImplementedError
 

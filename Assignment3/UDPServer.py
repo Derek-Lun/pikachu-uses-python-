@@ -5,6 +5,7 @@ import binascii
 from Queue import Queue
 from threading import Thread
 from node import *
+from ring import *
 
 results_queue = Queue()
 data = {}
@@ -12,6 +13,7 @@ cache_request = {}
 
 server_address = ("0.0.0.0", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
+ring = Ring([node.address()])
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -46,7 +48,7 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in (4):
+  elif request['command'] == 4:
     command[request['command']](request)
   else:
       no_operation(request)
