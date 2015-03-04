@@ -252,11 +252,13 @@ def runTestCases(server_address):
     # Remove - success case
     try:
         print "Test Case: remove - success case"
-        sendRequest(assembleMessage(1,'f[',"abc"), server_address)
-        sendRequest(assembleMessage(3,"f["), server_address)
+        data = sendRequest(assembleMessage(1,'f[',"abc"), server_address)
+        data = sendRequest(assembleMessage(3,"f["), server_address)
         data = sendRequest(assembleMessage(2,"f["), server_address)
         if data:
           res_code,payload = parsePayload(data)
+          print res_code
+          print ''.join(payload)
           assert res_code == 1
           print "\nPassed\n"
         else:
@@ -316,4 +318,13 @@ def runTestCases(server_address):
 #     except AssertionError:
 #         print "\nFailed\n"            
     
-    # shutdown - success case
+#     # shutdown - success case
+#     try:
+#         data = sendRequest(assembleMessage(4), server_address)
+#         data = sendRequest(assembleMessage(1,"nnew","123"), server_address)
+#         if data:
+#           assert False
+#         else:
+#             print "\nPassed\n"
+#     except AssertionError:
+#         print "\nFailed\n"        
