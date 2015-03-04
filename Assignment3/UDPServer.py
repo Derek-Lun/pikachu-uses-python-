@@ -38,17 +38,16 @@ def node_operation (request):
   global results_queue
   global node
   
-  if request['command'] in (1,2,3,4,32):
-      if request['command'] != 4:
-        try:
-          status, value = command[request['command']](request['key'], request['value'])
-          print status
-        except:
-          status, value = "internal_failure", None
-    
-        results_queue.put((request, status, value))
-      else:
-        command[request['command']](request)
+  if request['command'] in (1,2,3,32):
+    try:
+      status, value = command[request['command']](request['key'], request['value'])
+      print status
+    except:
+      status, value = "internal_failure", None
+
+    results_queue.put((request, status, value))
+  elif request['command'] in (4):
+    command[request['command']](request)
   else:
       no_operation(request)
 

@@ -2,10 +2,6 @@ from communication import *
 # Run the test cases and print out the result
 def runTestCases(server_address):
     print "\n===============================Performance Test===============================\n"
-    # TEST CASES FOR INVALID FORMAT OF THE MESSAGE
-    #
-    #
-    #
     # Invalid Command
     try:
         print "Test Case: Invalid Command"
