@@ -4,22 +4,31 @@ class Node(object):
 
 	"""Initializes the Node Object"""
 	def __init__(self):
-		raise NotImplementedError
+    self.data = dict()
 
 	def put(self,key,value):
-		raise NotImplementedError
+    d = {key: value}
+    self.data.update(d)
+    return 'success', None
 
 	def put_no_overwrite(self,key,value):
-		raise NotImplementedError
+    if key not in self.data:
+      put(key,value)
+    else:
+      return 'key_exist', None
 
 	def get(self, key):
-		raise NotImplementedError
+    if key in self.data:
+      return 'success', self.data[key]
+    else:
+      return 'dne', None
 
 	def remove(self,key):
-		raise NotImplementedError
-
-	def shutdown(self):
-		raise NotImplementedError
+    if key in self.data:
+      self.data.pop(key, None)
+      return 'success', None
+    else:
+      return 'dne', None
 
 	def report_alive(self):
 		raise NotImplementedError
