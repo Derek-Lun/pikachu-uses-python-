@@ -41,7 +41,7 @@ command = {
   4 : shutdown,
   32 : node.put_no_overwrite,
   33 : node.report_alive,
-  34 : addNode
+  34 : add_node
 }
 
 def node_operation (request):
