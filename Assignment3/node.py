@@ -17,7 +17,7 @@ class Node(object):
   def put_no_overwrite(self, key, value):
     print 'Operation: put without overwrite'
     if key not in self.data:
-      put(key,value)
+      return self.put(key,value)
     else:
       return 'key_exist', None
 

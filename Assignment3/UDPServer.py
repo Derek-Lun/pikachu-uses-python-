@@ -37,16 +37,20 @@ command = {
 def node_operation (request):
   global results_queue
   global node
-
-  if request['command'] != 4:
-    try:
-      status, value = command[request['command']](request['key'], request['value'])
-    except:
-      status, value = "internal_failure", None
-
-    results_queue.put((request, status, value))
+  
+  if request['command'] in (1,2,3,4,32):
+      if request['command'] != 4:
+        try:
+          status, value = command[request['command']](request['key'], request['value'])
+          print status
+        except:
+          status, value = "internal_failure", None
+    
+        results_queue.put((request, status, value))
+      else:
+        command[request['command']](request)
   else:
-    command[request['command']](request)
+      no_operation(request)
 
 response_status = {
   'success': 0,
@@ -134,19 +138,17 @@ while operating == True:
   try:
     rdata, address = sock.recvfrom(16384)
     func = None
-    try:
-      cache = cacheMsg(rdata[0:16])
-      if cache:
+
+    cache = cacheMsg(rdata[0:16])
+    if cache:
         sock.sendto(cache, address)
         continue
 
-      req = parseCommand(rdata, address)
-      print "Received: ", 
-      print req
+    req = parseCommand(rdata, address)
+    print "Received: ", 
+    print req
 
-      func = node_operation
-    except:
-      func = no_operation
+    func = node_operation
 
     task = Thread(target=func, args=((req),))
     task.start()
