@@ -4,10 +4,14 @@ import array
 import time
 import select
 import socket
+import datetime
 
 localport = 4000
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Define timer
+timer = datetime.datetime.now()
 
 def requestID ():
   rID = bytearray()
@@ -83,8 +87,11 @@ def sendRequest (dataPayload, server_address):
     try:
       # Send data
       print 'sending data'
-
       print 'Trying %s time' %numTries
+      
+      # Start timer for Turnaround time
+      startTimer() 
+      
       sent = sock.sendto(data, server_address)
 
       numTries += 1
@@ -98,7 +105,8 @@ def sendRequest (dataPayload, server_address):
       #if parseID(rID, data):
       if len(data) >= 16:
         done = True
-
+        # End timer and print Turnaround time
+        endTimer()
         return data
     except socket.error:
       if numTries > 3:
@@ -135,3 +143,15 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
         messageBuff.extend(valueBuff)
     
     return messageBuff    
+    
+    
+def startTimer():
+    #start timer
+    timer = datetime.datetime.now()
+    
+def endTimer():
+    #end timer and calculate turnAroundTime
+    turnAroundTime = (datetime.datetime.now()-timer)
+    #print  (float(int(turnAroundTime.seconds)*1000000) /1000.0)
+    #print  (float(turnAroundTime.microseconds) /1000.0)
+    print "Turnaround Time :%.2f ms " % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
