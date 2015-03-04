@@ -4,6 +4,7 @@ from threading import Timer
 import binascii
 from Queue import Queue
 from threading import Thread
+from node import *
 
 results_queue = Queue()
 data = {}
@@ -132,6 +133,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = ("0.0.0.0", 7790)
 
 sock.bind(server_address) 
+
+print socket.gethostbyname(sock.getsockname()[0])
 
 operating = True
 
