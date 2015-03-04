@@ -23,6 +23,8 @@ while operating == True:
             server_address = (servers[server_chosen],7790)
             print "Enter the command (1:put 2:get 3:remove 4:shutdown 32:put without overwrite):"
             command = int(raw_input())
+            key = None
+            value = None
             if command in (1,2,3,4,32):
                 if command == 4:
                     print "Shutting down the server..."

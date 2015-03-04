@@ -4,42 +4,14 @@ from threading import Timer
 import binascii
 from Queue import Queue
 from threading import Thread
+from node import *
 
 results_queue = Queue()
 data = {}
 cache_request = {}
 
-def put (request):
-  print 'Operation: put'
-  global results_queue
-  d = {request['key']: request['value']}
-  data.update(d)
-  results_queue.put((request, 'success', None))
-
-def put_no_overwrite (request):
-  print 'Operation: put without overwrite'
-  global results_queue
-  if request['key'] not in data:
-    put(request)
-  else:
-    results_queue.put((request, 'key_exist', None))
-
-def get (request):
-  print 'Operation: get'
-  global results_queue
-  if request['key'] in data:
-    results_queue.put((request, 'success', data.get(request['key'])))
-  else:
-    results_queue.put((request, 'dne', None))
-
-def remove (request):
-  print 'Operation: remove'
-  global results_queue
-  if request['key'] in data:
-    data.pop(request['key'], None)
-    results_queue.put((request, 'success', None))
-  else:
-    results_queue.put((request, 'dne', None))
+server_address = ("0.0.0.0", 7790)
+node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -47,7 +19,7 @@ def shutdown (request):
   global operating
   operating = False
   print "Shutting down..."
-  results_queue.put((request, 'success', None))
+  return 'success', None
 
 def no_operation(request):
   print 'Operation: do not recognize'
@@ -55,12 +27,26 @@ def no_operation(request):
   results_queue.put((request, 'do_not_recognize', None))
 
 command = {
-  1 : put,
-  2 : get,
-  3 : remove,
+  1 : node.put,
+  2 : node.get,
+  3 : node.remove,
   4 : shutdown,
-  32 : put_no_overwrite
+  32 : node.put_no_overwrite
 }
+
+def node_operation (request):
+  global results_queue
+  global node
+
+  if request['command'] != 4:
+    try:
+      status, value = command[request['command']](request['key'], request['value'])
+    except:
+      status, value = "internal_failure", None
+
+    results_queue.put((request, status, value))
+  else:
+    command[request['command']](request)
 
 response_status = {
   'success': 0,
@@ -86,6 +72,8 @@ def parseCommand (recv, address):
       length = struct.unpack_from('<h', recv, 49)
       begin = 51
       request['value'] = recv[begin:begin+length[0]]
+    else:
+      request['value'] = None
 
   except:
     request['command'] = no_operation
@@ -129,8 +117,6 @@ def removeCache(id):
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-server_address = ("0.0.0.0", 7790)
-
 sock.bind(server_address) 
 
 operating = True
@@ -158,7 +144,7 @@ while operating == True:
       print "Received: ", 
       print req
 
-      func = command[req['command']]
+      func = node_operation
     except:
       func = no_operation
 

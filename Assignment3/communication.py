@@ -10,9 +10,6 @@ localport = 4000
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Define timer
-timer = datetime.datetime.now()
-
 def requestID ():
   rID = bytearray()
   ip = socket.gethostbyname(socket.gethostname()).split('.')
@@ -90,7 +87,7 @@ def sendRequest (dataPayload, server_address):
       print 'Trying %s time' %numTries
       
       # Start timer for Turnaround time
-      startTimer() 
+      startTimer = datetime.datetime.now()
       
       sent = sock.sendto(data, server_address)
 
@@ -106,7 +103,9 @@ def sendRequest (dataPayload, server_address):
       if len(data) >= 16:
         done = True
         # End timer and print Turnaround time
-        endTimer()
+        turnAroundTime = (datetime.datetime.now()-startTimer)
+        print "Turnaround Time :%.2f ms " % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
+        
         return data
     except socket.error:
       if numTries > 3:
@@ -127,14 +126,14 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     #Put value in byte array
 
     commandBuff = struct.pack ('<b',commandNum)
-
-    index = 0
-    for letter in keyString:    
-        struct.pack_into('<s',keyBuff,index,letter)
-        index += 1
-
     messageBuff.extend(commandBuff)
-    messageBuff.extend(keyBuff)
+
+    if keyString:
+      index = 0
+      for letter in keyString:
+          struct.pack_into('<s',keyBuff,index,letter)
+          index += 1
+      messageBuff.extend(keyBuff)
 
     if valueString:
         valueBuff=valueString
@@ -145,13 +144,4 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     return messageBuff    
     
     
-def startTimer():
-    #start timer
-    timer = datetime.datetime.now()
-    
-def endTimer():
-    #end timer and calculate turnAroundTime
-    turnAroundTime = (datetime.datetime.now()-timer)
-    #print  (float(int(turnAroundTime.seconds)*1000000) /1000.0)
-    #print  (float(turnAroundTime.microseconds) /1000.0)
-    print "Turnaround Time :%.2f ms " % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
+
