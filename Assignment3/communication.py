@@ -127,15 +127,15 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     #Put value in byte array
 
     commandBuff = struct.pack ('<b',commandNum)
-
-    index = 0
+    messageBuff.extend(commandBuff)
+    
     if commandNum != 4:
+        index = 0
         for letter in keyString:    
             struct.pack_into('<s',keyBuff,index,letter)
             index += 1
+        messageBuff.extend(keyBuff)
 
-    messageBuff.extend(commandBuff)
-    messageBuff.extend(keyBuff)
 
     if valueString:
         valueBuff=valueString
