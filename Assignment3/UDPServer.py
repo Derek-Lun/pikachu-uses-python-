@@ -21,14 +21,16 @@ def put_no_overwrite (request):
   global results_queue
   if request['key'] not in data:
     put(request)
-  results_queue.put((request, 'key_exist', None))
+  else:
+    results_queue.put((request, 'key_exist', None))
 
 def get (request):
   print 'Operation: get'
   global results_queue
   if request['key'] in data:
-    results_queue.put((request,'success', data.get(request['key'])))
-  results_queue.put((request, 'dne', None))
+    results_queue.put((request, 'success', data.get(request['key'])))
+  else:
+    results_queue.put((request, 'dne', None))
 
 def remove (request):
   print 'Operation: remove'
@@ -36,7 +38,8 @@ def remove (request):
   if request['key'] in data:
     data.pop(request['key'], None)
     results_queue.put((request, 'success', None))
-  results_queue.put((request, 'dne', None))
+  else:
+    results_queue.put((request, 'dne', None))
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -119,7 +122,7 @@ def cacheMsg(id,reply = None):
 
 def removeCache(id):
   if id in cache_request:
-    print "Removing cache with id: " + binascii.hexlify(id)
+    #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
   
   
