@@ -53,7 +53,7 @@ def parsePayload (received):
     r.pop(0)
   res_code = ord(r[0])
   r.pop(0)
-  
+  print res_code
   r = ''.join(r)
 
   size = struct.unpack_from('<i', r)[0]
