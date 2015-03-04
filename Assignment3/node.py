@@ -39,11 +39,5 @@ class Node(object):
   def address(self):
     return self.host + ":" + str(self.port)
 
-  def report_alive(self):
-    raise NotImplementedError
-
-  def report_update(self):
-    raise NotImplementedError
-  
-  def check_alive(self):
-    raise NotImplementedError
+  def report_alive(self,key=None, value=None):
+    return 'alive', None

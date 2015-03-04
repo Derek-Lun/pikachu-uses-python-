@@ -13,7 +13,7 @@ cache_request = {}
 
 server_address = ("0.0.0.0", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
-ring = Ring([node.address()])
+ring = Ring(node.address())
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -28,19 +28,27 @@ def no_operation(request):
   global results_queue
   results_queue.put((request, 'do_not_recognize', None))
 
+def add_node(request):
+  global ring
+  node = request['address'][0] + ":" + str(request['address'][1])
+  ring.add_node(node)
+  results_queue.put((request, 'success', None))
+
 command = {
   1 : node.put,
   2 : node.get,
   3 : node.remove,
   4 : shutdown,
-  32 : node.put_no_overwrite
+  32 : node.put_no_overwrite,
+  33 : node.report_alive,
+  34 : addNode
 }
 
 def node_operation (request):
   global results_queue
   global node
   
-  if request['command'] in (1,2,3,32):
+  if request['command'] in (1,2,3,32,33):
     try:
       status, value = command[request['command']](request['key'], request['value'])
       print status
@@ -48,7 +56,7 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] == 4:
+  elif request['command'] in (4,34): 
     command[request['command']](request)
   else:
       no_operation(request)
@@ -60,7 +68,8 @@ response_status = {
   'sys_overload': 3,
   'internal_failure': 4,
   'do_not_recognize': 5,
-  'key_exist' : 32
+  'key_exist' : 32,
+  'alive': 34
 }
 
 def parseCommand (recv, address):
@@ -103,6 +112,7 @@ def createReply (request,status, value = None):
     reply_str = reply_str + struct.pack('<B',i)
 
   return reply_str
+
 
 def cacheMsg(id,reply = None):
   if reply:
