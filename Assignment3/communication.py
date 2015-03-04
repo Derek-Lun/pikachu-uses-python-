@@ -69,7 +69,7 @@ def parsePayload (received):
 
   return res_code,payload
 
-def sendRequest (dataPayload, server_address):
+def sendRequest (dataPayload, server_address,performanceTest = None):
   timeoutInterval = 1000
   numTries = 1
   done = False
@@ -88,9 +88,9 @@ def sendRequest (dataPayload, server_address):
       # Send data
       print 'sending data'
       print 'Trying %s time' %numTries
-      
+      if performanceTest:
       # Start timer for Turnaround time
-      startTimer() 
+        startTimer() 
       
       sent = sock.sendto(data, server_address)
 
@@ -105,8 +105,9 @@ def sendRequest (dataPayload, server_address):
       #if parseID(rID, data):
       if len(data) >= 16:
         done = True
-        # End timer and print Turnaround time
-        endTimer()
+        if performanceTest:
+          # End timer and print Turnaround time
+          endTimer()
         return data
     except socket.error:
       if numTries > 3:
@@ -157,6 +158,4 @@ def startTimer():
 def endTimer():
     #end timer and calculate turnAroundTime
     turnAroundTime = (datetime.datetime.now()-timer)
-    #print  (float(int(turnAroundTime.seconds)*1000000) /1000.0)
-    #print  (float(turnAroundTime.microseconds) /1000.0)
-    print "Turnaround Time :%.2f ms " % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
+    print "\nTurnaround Time: %.2f ms\n" % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
