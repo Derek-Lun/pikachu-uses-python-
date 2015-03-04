@@ -144,7 +144,7 @@ def runTestCases(server_address):
         print "\nFailed\n"    
     # Put without overwrite - empty key
     try:
-        print "Test Case: put without overwrite - empty value"
+        print "Test Case: put without overwrite - empty key"
         data = sendRequest(assembleMessage(3,""), server_address)
         if data:
           data = sendRequest(assembleMessage(32,"","..."), server_address)
