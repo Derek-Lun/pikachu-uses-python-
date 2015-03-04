@@ -3,18 +3,19 @@ import hashlib
 class Ring(object):
 
   """Initializes the Ring Object"""
-  def __init__(self, nodes=None):
+  def __init__(self, node):
 
     self.ring = dict()
     self.sorted_keys = []
 
-    if nodes:
-      for node in nodes:
-        self.add_node(node)
+    self.node = node
+
+    self.add_node(node)
 
   def add_node(self, node):
     key = self.hash_key(node)
     self.ring[key] = node
+    print self.ring
     self.sorted_keys.append(key)
 
     self.sorted_keys.sort()
