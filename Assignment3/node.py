@@ -8,24 +8,28 @@ class Node(object):
     self.host = ip_string
     self.port = port
 
-  def put(self,key,value):
+  def put(self, key, value):
+    print 'Operation: put'
     d = {key: value}
     self.data.update(d)
     return 'success', None
 
-  def put_no_overwrite(self,key,value):
+  def put_no_overwrite(self, key, value):
+    print 'Operation: put without overwrite'
     if key not in self.data:
       put(key,value)
     else:
       return 'key_exist', None
 
-  def get(self, key):
+  def get(self, key, value=None):
+    print 'Operation: get'
     if key in self.data:
       return 'success', self.data[key]
     else:
       return 'dne', None
 
-  def remove(self,key):
+  def remove(self,key, value=None):
+    print 'Operation: remove'
     if key in self.data:
       self.data.pop(key, None)
       return 'success', None
