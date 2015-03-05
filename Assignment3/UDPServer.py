@@ -128,6 +128,20 @@ def removeCache(id):
     #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
   
+def routeMessage(rdata, request):
+  current = True
+  if request['command'] in (1,2,3,32):
+    position = ring.get_node_position(request['key'])[0]
+    if position != ring.node:
+      current = False
+      print position.split(':')
+
+
+  if current:
+    task = Thread(target=node_operation, args=((request),))
+    task.start()
+    task.join()
+
   
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -140,7 +154,7 @@ print "Listening on %s" % server_address[1]
 
 while operating == True:
   
-  if not results_queue.empty():
+  if not r esults_queue.empty():
     result = results_queue.get()
     reply = createReply(result[0], result[1], result[2])
     sock.sendto(reply, result[0]['address'])
@@ -159,11 +173,7 @@ while operating == True:
     print "Received: ", 
     print req
 
-    func = node_operation
-
-    task = Thread(target=func, args=((req),))
-    task.start()
-    task.join()
+    routeMessage(rdata, req)
 
   except socket.error: 
       #print "Socket closed"
