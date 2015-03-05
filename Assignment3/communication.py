@@ -60,7 +60,7 @@ def parsePayload (received):
   print res_code
   r = ''.join(r)
 
-  size = struct.unpack_from('<i', r)[0]
+  size = struct.unpack_from('<h', r)[0]
 
   payload = []
 

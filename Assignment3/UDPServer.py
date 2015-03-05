@@ -38,9 +38,25 @@ def add_node(request):
   results_queue.put((request, 'success', None))
 
 def forwarded(request):
+  global results_queue
   payload = request['payload']
   req = parseCommand(payload, request['address'])
-  node_operation(req)
+
+  try:
+    status, value = command[req['command']](req['key'], req['value'])
+  except:
+    status, value = "internal_failure", None
+
+  payload = createReply(req, status, value)
+  results_queue.put((request, 'f_reply', payload))
+
+def pass_on_reply(request):
+  global results_queue
+
+  payload = request['payload']
+
+  results_queue.put((payload, forwarded_request[str(request['header'])]))
+
 
 command = {
   1 : node.put,
@@ -50,12 +66,12 @@ command = {
   32 : node.put_no_overwrite,
   33 : node.report_alive,
   34 : add_node,
-  35 : forwarded
+  35 : forwarded,
+  36 : pass_on_reply
 }
 
 def node_operation (request):
   global results_queue
-  global node
   
   if request['command'] in (1,2,3,32,33):
     try:
@@ -64,7 +80,7 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in (4,34,35): 
+  elif request['command'] in (4,34,35,36): 
     command[request['command']](request)
   else:
       no_operation(request)
@@ -78,7 +94,8 @@ response_status = {
   'do_not_recognize': 5,
   'key_exist' : 32,
   'alive': 34,
-  'forwarded': 35
+  'forwarded': 35,
+  'f_reply': 36,
 }
 
 def requestID ():
@@ -117,7 +134,7 @@ def parseCommand (recv, address):
     request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    if request['command'] != 35:
+    if not request['command'] in (35,36):
       request['key'] = recv[17:49].split(b'\0',1)[0]
 
       if request['command'] == 1 or request['command'] == 32:
@@ -129,7 +146,6 @@ def parseCommand (recv, address):
     else:
       length = struct.unpack_from('<h', recv, 16)
       begin = 19
-      print length
       request['payload'] = recv[begin:begin+length[0]]
 
   except:
@@ -145,10 +161,10 @@ def createReply (request,status, value = None):
 
   if value:
     length = len(value)
-    reply.extend(struct.pack('<i', length))
+    reply.extend(struct.pack('<h', length))
     reply.extend(value)
   else:
-    reply.extend(struct.pack('<i', 0))
+    reply.extend(struct.pack('<h', 0))
 
   reply_str = "";  
   for i in reply:    
@@ -160,7 +176,7 @@ def createForward (rdata, request):
   global forwarded_request
   forward = requestID()
 
-  forwarded_request.update({str(forward): request['address']})
+  forwarded_request[str(forward)] = request['address']
 
   forward.append(struct.pack('<b',response_status['forwarded']))
   forward.extend(struct.pack('<h', len(rdata)))
@@ -217,9 +233,13 @@ while operating == True:
   
   if not results_queue.empty():
     result = results_queue.get()
-    reply = createReply(result[0], result[1], result[2])
-    sock.sendto(reply, result[0]['address'])
-    cacheMsg(rdata[0:16],reply)
+    if len(result) > 2:
+      reply = createReply(result[0], result[1], result[2])
+      sock.sendto(reply, result[0]['address'])
+      cacheMsg(rdata[0:16],reply)
+    else:
+      sock.sendto(result[0], result[1])
+
 
   try:
     rdata, address = sock.recvfrom(16384)
