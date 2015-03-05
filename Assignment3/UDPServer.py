@@ -150,8 +150,8 @@ def createReply (request,status, value = None):
   else:
     reply.extend(struct.pack('<i', 0))
 
+  reply_str = "";  
   for i in reply:    
-    reply_str = "";  
     reply_str = reply_str + struct.pack('<B',i)
 
   return reply_str
