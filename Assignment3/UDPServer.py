@@ -16,6 +16,7 @@ forwarded_request = {}
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 ring = Ring(node.address())
+ring.add_node('129.97.74.14:7790')
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -39,8 +40,7 @@ def add_node(request):
 def forwarded(request):
   payload = request['payload']
   req = parseCommand(payload, request['address'])
-  print req
-
+  node_operation(req)
 
 command = {
   1 : node.put,
@@ -60,7 +60,6 @@ def node_operation (request):
   if request['command'] in (1,2,3,32,33):
     try:
       status, value = command[request['command']](request['key'], request['value'])
-      print status
     except:
       status, value = "internal_failure", None
 
@@ -128,8 +127,8 @@ def parseCommand (recv, address):
       else:
         request['value'] = None
     else:
-      length = struct.unpack_from('<i', recv, 16)
-      begin = 21
+      length = struct.unpack_from('<h', recv, 16)
+      begin = 19
       print length
       request['payload'] = recv[begin:begin+length[0]]
 
@@ -150,9 +149,9 @@ def createReply (request,status, value = None):
     reply.extend(value)
   else:
     reply.extend(struct.pack('<i', 0))
-    
-  reply_str = "";  
-  for i in reply:
+
+  for i in reply:    
+    reply_str = "";  
     reply_str = reply_str + struct.pack('<B',i)
 
   return reply_str
@@ -164,7 +163,7 @@ def createForward (rdata, request):
   forwarded_request.update({str(forward): request['address']})
 
   forward.append(struct.pack('<b',response_status['forwarded']))
-  forward.extend(struct.pack('<i', len(rdata)))
+  forward.extend(struct.pack('<h', len(rdata)))
   forward.extend(rdata)
 
   forward_str = "";
