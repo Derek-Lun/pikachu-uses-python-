@@ -38,9 +38,28 @@ def add_node(request):
   results_queue.put((request, 'success', None))
 
 def forwarded(request):
+  global results_queue
+  global ring
+  node = request['address'][0] + ":" + str(request['address'][1])
+  ring.add_node(node)
   payload = request['payload']
   req = parseCommand(payload, request['address'])
-  node_operation(req)
+
+  try:
+    status, value = command[req['command']](req['key'], req['value'])
+  except:
+    status, value = "internal_failure", None
+
+  payload = createReply(req, status, value)
+  results_queue.put((request, 'f_reply', payload))
+
+def pass_on_reply(request):
+  global results_queue
+
+  payload = request['payload']
+
+  results_queue.put((payload, forwarded_request[str(request['header'])]))
+
 
 command = {
   1 : node.put,
@@ -50,13 +69,13 @@ command = {
   32 : node.put_no_overwrite,
   33 : node.report_alive,
   34 : add_node,
-  35 : forwarded
+  35 : forwarded,
+  36 : pass_on_reply
 }
 
 def node_operation (request):
   global results_queue
-  global node
-  
+
   if request['command'] in (1,2,3,32,33):
     try:
       status, value = command[request['command']](request['key'], request['value'])
@@ -64,7 +83,7 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in (4,34,35): 
+  elif request['command'] in (4,34,35,36):
     command[request['command']](request)
   else:
       no_operation(request)
@@ -78,7 +97,8 @@ response_status = {
   'do_not_recognize': 5,
   'key_exist' : 32,
   'alive': 34,
-  'forwarded': 35
+  'forwarded': 35,
+  'f_reply': 36,
 }
 
 def requestID ():
@@ -117,7 +137,7 @@ def parseCommand (recv, address):
     request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    if request['command'] != 35:
+    if not request['command'] in (35,36):
       request['key'] = recv[17:49].split(b'\0',1)[0]
 
       if request['command'] == 1 or request['command'] == 32:
@@ -129,7 +149,6 @@ def parseCommand (recv, address):
     else:
       length = struct.unpack_from('<h', recv, 16)
       begin = 19
-      print length
       request['payload'] = recv[begin:begin+length[0]]
 
   except:
@@ -145,13 +164,13 @@ def createReply (request,status, value = None):
 
   if value:
     length = len(value)
-    reply.extend(struct.pack('<i', length))
+    reply.extend(struct.pack('<h', length))
     reply.extend(value)
   else:
-    reply.extend(struct.pack('<i', 0))
+    reply.extend(struct.pack('<h', 0))
 
-  reply_str = "";  
-  for i in reply:    
+  reply_str = "";
+  for i in reply:
     reply_str = reply_str + struct.pack('<B',i)
 
   return reply_str
@@ -160,7 +179,7 @@ def createForward (rdata, request):
   global forwarded_request
   forward = requestID()
 
-  forwarded_request.update({str(forward): request['address']})
+  forwarded_request[str(forward)] = request['address']
 
   forward.append(struct.pack('<b',response_status['forwarded']))
   forward.extend(struct.pack('<h', len(rdata)))
@@ -186,7 +205,7 @@ def removeCache(id):
   if id in cache_request:
     #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
-  
+
 def routeMessage(rdata, request):
   current = True
   if request['command'] in (1,2,3,32):
@@ -203,23 +222,28 @@ def routeMessage(rdata, request):
     task.start()
     task.join()
 
-  
+
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-sock.bind(server_address) 
+sock.bind(server_address)
 
 operating = True
 
 print "Listening on %s" % server_address[1]
 
 while operating == True:
-  
+
   if not results_queue.empty():
     result = results_queue.get()
-    reply = createReply(result[0], result[1], result[2])
-    sock.sendto(reply, result[0]['address'])
-    cacheMsg(rdata[0:16],reply)
+    if len(result) > 2:
+      reply = createReply(result[0], result[1], result[2])
+      sock.sendto(reply, result[0]['address'])
+      cacheMsg(rdata[0:16],reply)
+    else:
+      sock.sendto(result[0], result[1])
+      cacheMsg(result[0][0:16], result[0])
+
 
   try:
     rdata, address = sock.recvfrom(16384)
@@ -231,11 +255,11 @@ while operating == True:
         continue
 
     req = parseCommand(rdata, address)
-    print "Received: ", 
+    print "Received: ",
     print req
 
     routeMessage(rdata, req)
 
-  except socket.error: 
+  except socket.error:
       #print "Socket closed"
       pass
