@@ -1,5 +1,3 @@
-import md5
-
 class Node(object):
 
   """Initializes the Node Object"""

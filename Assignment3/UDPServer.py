@@ -1,5 +1,7 @@
 import socket
 import struct
+import random
+import time
 from threading import Timer
 import binascii
 from Queue import Queue
@@ -8,10 +10,10 @@ from node import *
 from ring import *
 
 results_queue = Queue()
-data = {}
 cache_request = {}
+forwarded_request = {}
 
-server_address = ("0.0.0.0", 7790)
+server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 ring = Ring(node.address())
 
@@ -34,6 +36,12 @@ def add_node(request):
   ring.add_node(node)
   results_queue.put((request, 'success', None))
 
+def forwarded(request):
+  payload = request['payload']
+  req = parseCommand(payload, request['address'])
+  print req
+
+
 command = {
   1 : node.put,
   2 : node.get,
@@ -41,7 +49,8 @@ command = {
   4 : shutdown,
   32 : node.put_no_overwrite,
   33 : node.report_alive,
-  34 : add_node
+  34 : add_node,
+  35 : forwarded
 }
 
 def node_operation (request):
@@ -56,7 +65,7 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in (4,34): 
+  elif request['command'] in (4,34,35): 
     command[request['command']](request)
   else:
       no_operation(request)
@@ -69,8 +78,37 @@ response_status = {
   'internal_failure': 4,
   'do_not_recognize': 5,
   'key_exist' : 32,
-  'alive': 34
+  'alive': 34,
+  'forwarded': 35
 }
+
+def requestID ():
+  global server_address
+  rID = bytearray()
+  ip = socket.gethostbyname(socket.gethostname()).split('.')
+
+  hostAddress = []
+
+  for elem in ip:
+    y = int(elem)
+    hostAddress.append(struct.pack('<B',y))
+
+  rID.extend(hostAddress)
+
+  port = struct.pack('<h',server_address[1])
+
+  rID.extend(port)
+
+  randomGen = struct.pack('<H', random.randint(0, 65534))
+
+  rID.extend(randomGen)
+
+  millis = struct.pack('<Q', long(round(time.time() * 1000)))
+
+  rID.extend(millis)
+
+  return rID
+
 
 def parseCommand (recv, address):
   request = {}
@@ -80,14 +118,20 @@ def parseCommand (recv, address):
     request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    request['key'] = recv[17:49].split(b'\0',1)[0]
+    if request['command'] != 35:
+      request['key'] = recv[17:49].split(b'\0',1)[0]
 
-    if request['command'] == 1 or request['command'] == 32:
-      length = struct.unpack_from('<h', recv, 49)
-      begin = 51
-      request['value'] = recv[begin:begin+length[0]]
+      if request['command'] == 1 or request['command'] == 32:
+        length = struct.unpack_from('<h', recv, 49)
+        begin = 51
+        request['value'] = recv[begin:begin+length[0]]
+      else:
+        request['value'] = None
     else:
-      request['value'] = None
+      length = struct.unpack_from('<i', recv, 16)
+      begin = 21
+      print length
+      request['payload'] = recv[begin:begin+length[0]]
 
   except:
     request['command'] = no_operation
@@ -113,6 +157,22 @@ def createReply (request,status, value = None):
 
   return reply_str
 
+def createForward (rdata, request):
+  global forwarded_request
+  forward = requestID()
+
+  forwarded_request.update({str(forward): request['address']})
+
+  forward.append(struct.pack('<b',response_status['forwarded']))
+  forward.extend(struct.pack('<i', len(rdata)))
+  forward.extend(rdata)
+
+  forward_str = "";
+  for x in forward:
+    forward_str = forward_str + struct.pack('<B', x)
+
+  return forward_str
+
 
 def cacheMsg(id,reply = None):
   if reply:
@@ -134,8 +194,10 @@ def routeMessage(rdata, request):
     position = ring.get_node_position(request['key'])[0]
     if position != ring.node:
       current = False
-      print position.split(':')
-
+      position = position.split(':')
+      address = (position[0], int(position[1]))
+      forward = createForward(rdata, request)
+      sock.sendto(forward, address)
 
   if current:
     task = Thread(target=node_operation, args=((request),))
@@ -154,7 +216,7 @@ print "Listening on %s" % server_address[1]
 
 while operating == True:
   
-  if not r esults_queue.empty():
+  if not results_queue.empty():
     result = results_queue.get()
     reply = createReply(result[0], result[1], result[2])
     sock.sendto(reply, result[0]['address'])

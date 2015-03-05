@@ -109,7 +109,8 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
           # End timer and print Turnaround time
           endTimer()
         return data
-    except socket.error:
+    except socket.error as serr:
+      print serr
       if numTries > 3:
         print 'Exceed maximum of tries, server may be down.'
         break

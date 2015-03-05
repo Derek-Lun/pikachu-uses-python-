@@ -33,6 +33,7 @@ class Ring(object):
       return None, None
 
     key = self.hash_key(key_string)
+    print key
 
     nodes = self.sorted_keys
 
