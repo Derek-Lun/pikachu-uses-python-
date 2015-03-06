@@ -69,7 +69,7 @@ def parsePayload (received):
 
   return res_code,payload
 
-def sendRequest (dataPayload, server_address,performanceTest = None):
+def sendRequest (dataPayload, server_address,performanceTest = None, max_tries=3):
   timeoutInterval = 1000
   numTries = 1
   done = False
@@ -83,10 +83,10 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
     
   data.extend(dataPayload)
 
-  while (not done) and numTries <= 3:
+  while (not done) and numTries <= max_tries:
     try:
       # Send data
-      print 'sending data'
+      print 'sending data to ' + server_address[0] 
       print 'Trying %s time' %numTries
       if performanceTest:
       # Start timer for Turnaround time
@@ -111,7 +111,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
         return data
     except socket.error as serr:
       print serr
-      if numTries > 3:
+      if numTries > max_tries:
         print 'Exceed maximum of tries, server may be down.'
         break
       timeoutInterval *= 2
