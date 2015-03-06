@@ -16,7 +16,6 @@ forwarded_request = {}
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 ring = Ring(node.address())
-ring.add_node('129.97.74.14:7790')
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -57,10 +56,8 @@ def pass_on_reply(request):
   global results_queue
 
   payload = request['payload']
-
   results_queue.put((payload, forwarded_request[str(request['header'])]))
-
-
+  
 command = {
   1 : node.put,
   2 : node.get,
@@ -231,6 +228,8 @@ sock.bind(server_address)
 operating = True
 
 print "Listening on %s" % server_address[1]
+
+ring.intialization()
 
 while operating == True:
 
