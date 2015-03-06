@@ -12,7 +12,7 @@ from communication import *
 
 PASS_ON_VALUE = 2
 
-server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.washington.edu"]
+server_list = [line.strip() for line in open('node.txt')]
 
 results_queue = Queue()
 cache_request = {}
@@ -335,8 +335,6 @@ def check_status():
     checkSuccessor()
     print ring.ring.values()
     time.sleep(check_status_time)
-
-
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
