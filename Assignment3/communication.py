@@ -86,7 +86,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
   while (not done) and numTries <= 3:
     try:
       # Send data
-      print 'sending data'
+      #print 'sending data'
       print 'Trying %s time' %numTries
       if performanceTest:
       # Start timer for Turnaround time
@@ -97,7 +97,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
       numTries += 1
 
       # Receive response
-      print 'waiting to receive'
+      #print 'waiting to receive'
 
       sock.settimeout(timeoutInterval/1000)
       data, server = sock.recvfrom(16384)
@@ -139,14 +139,13 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
 
 
     if valueString:
-        valueBuff=valueString
         vLengthBuff = struct.pack ('<h',len(valueString))
+        valueBuff=valueString
         messageBuff.extend(vLengthBuff)
         messageBuff.extend(valueBuff)
     else:
-        if commandNum == 1 or 32:
+        if commandNum in (1,32):
             messageBuff.extend(struct.pack ('<h',0))
-            messageBuff.extend(valueBuff)
     return messageBuff    
     
     
