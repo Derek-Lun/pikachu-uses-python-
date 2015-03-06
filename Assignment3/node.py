@@ -1,4 +1,5 @@
-import md5
+import random
+DATA_LIMIT = 2000
 
 class Node(object):
 
@@ -10,9 +11,12 @@ class Node(object):
 
   def put(self, key, value):
     print 'Operation: put'
-    d = {key: value}
-    self.data.update(d)
-    return 'success', None
+    if len(self.data) < DATA_LIMIT:
+      d = {key: value}
+      self.data.update(d)
+      return 'success', None
+    else:
+      return 'sys_overload', None
 
   def put_no_overwrite(self, key, value):
     print 'Operation: put without overwrite'
@@ -37,7 +41,7 @@ class Node(object):
       return 'dne', None
 
   def address(self):
-    return self.host + ":" + str(self.port)
+    return self.host
 
   def report_alive(self,key=None, value=None):
     return 'alive', None
