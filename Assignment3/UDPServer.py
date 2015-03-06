@@ -16,7 +16,6 @@ forwarded_request = {}
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 ring = Ring(node.address())
-ring.add_node('129.97.74.14:7790')
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -39,6 +38,9 @@ def add_node(request):
 
 def forwarded(request):
   global results_queue
+  global ring
+  node = request['address'][0] + ":" + str(request['address'][1])
+  ring.add_node(node)
   payload = request['payload']
   req = parseCommand(payload, request['address'])
 
@@ -54,10 +56,8 @@ def pass_on_reply(request):
   global results_queue
 
   payload = request['payload']
-
   results_queue.put((payload, forwarded_request[str(request['header'])]))
-
-
+  
 command = {
   1 : node.put,
   2 : node.get,
@@ -72,7 +72,6 @@ command = {
 
 def node_operation (request):
   global results_queue
-  
   if request['command'] in (1,2,3,32,33):
     try:
       status, value = command[request['command']](request['key'], request['value'])
@@ -166,8 +165,8 @@ def createReply (request,status, value = None):
   else:
     reply.extend(struct.pack('<h', 0))
 
-  reply_str = "";  
-  for i in reply:    
+  reply_str = "";
+  for i in reply:
     reply_str = reply_str + struct.pack('<B',i)
 
   return reply_str
@@ -202,7 +201,7 @@ def removeCache(id):
   if id in cache_request:
     #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
-  
+
 def routeMessage(rdata, request):
   current = True
   if request['command'] in (1,2,3,32):
@@ -219,18 +218,20 @@ def routeMessage(rdata, request):
     task.start()
     task.join()
 
-  
+
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-sock.bind(server_address) 
+sock.bind(server_address)
 
 operating = True
 
 print "Listening on %s" % server_address[1]
 
+ring.intialization()
+
 while operating == True:
-  
+
   if not results_queue.empty():
     result = results_queue.get()
     if len(result) > 2:
@@ -239,6 +240,7 @@ while operating == True:
       cacheMsg(rdata[0:16],reply)
     else:
       sock.sendto(result[0], result[1])
+      cacheMsg(result[0][0:16], result[0])
 
 
   try:
@@ -251,11 +253,11 @@ while operating == True:
         continue
 
     req = parseCommand(rdata, address)
-    print "Received: ", 
+    print "Received: ",
     print req
 
     routeMessage(rdata, req)
 
-  except socket.error: 
+  except socket.error:
       #print "Socket closed"
       pass
