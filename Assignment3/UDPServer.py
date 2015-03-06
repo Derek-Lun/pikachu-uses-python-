@@ -63,10 +63,38 @@ def checkStatus():
 
 def add_node(request):
   global ring
-  node = request['address'][0]
-  ring.add_node(node)
-  print ring.ring.values()
-  results_queue.put((request, 'success', None))
+  global node
+
+  node_add = request['payload']
+
+  if node.host != node_add:
+    ring.add_node(node_add)
+    ring.add_node(request['address'][0])
+    request['address'] = list(request['address'])
+    request['address'][1] = node.port
+    request['address'] = tuple(request['address'])
+    ring_list = ','.join(map(str, ring.ring.values()))
+    print ring_list
+    results_queue.put((request, 'update_ring', ring_list))
+    data = None
+    local_host_name = socket.getfqdn()
+    try:
+      index = server_list.index(local_host_name)
+    except:
+      index = -1
+
+    self = index
+
+    while not data:
+      index += 1
+      index = index % len(server_list)
+      if index == self:
+        print "No other nodes are online"
+        break;
+      successor = (server_list[index],server_address[1]);
+      message = assembleMessage(34, None,node_add)
+      data = sendRequest(message,successor)
+
 
 def forwarded(request):
   global results_queue
@@ -88,6 +116,10 @@ def pass_on_reply(request):
   payload = request['payload']
   results_queue.put((payload, forwarded_request[str(request['header'])]))
 
+def update_ring(request):
+  ring_list = request['payload'].split(',')
+  ring.update_ring(ring_list)
+
 command = {
   1 : node.put,
   2 : node.get,
@@ -97,7 +129,8 @@ command = {
   33 : node.report_alive,
   34 : add_node,
   35 : forwarded,
-  36 : pass_on_reply
+  36 : pass_on_reply,
+  37 : update_ring,
 }
 
 def node_operation (request):
@@ -109,11 +142,12 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in {4,34,35,36}: 
+  elif request['command'] in {4,34,35,36,37}: 
     command[request['command']](request)
   else:
       no_operation(request)
 
+  'update_ring': 37
 def parseCommand (recv, address):
   request = {}
   request['address'] = address
@@ -122,7 +156,7 @@ def parseCommand (recv, address):
     request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    if not request['command'] in (35,36):
+    if not request['command'] in (34,35,36,37):
       request['key'] = recv[17:49].split(b'\0',1)[0]
 
       if request['command'] == 1 or request['command'] == 32:
@@ -207,17 +241,25 @@ def routeMessage(rdata, request):
     task.join()
 
 def intialization():
+  global node
+  data = None
   local_host_name = socket.getfqdn()
   try:
     index = server_list.index(local_host_name)
   except:
     index = -1
 
-  index += 1
-  index = index % len(server_list)
-  successor = (server_list[index],server_address[1]);
-  message = assembleMessage(34)
-  data = sendRequest(message,successor)
+  self = index
+
+  while not data:
+    index += 1
+    index = index % len(server_list)
+    if index == self:
+      print "No other nodes are online"
+      break;
+    successor = (server_list[index],server_address[1]);
+    message = assembleMessage(34, None,node.host)
+    data = sendRequest(message,successor)
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
