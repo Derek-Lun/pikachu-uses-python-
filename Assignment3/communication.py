@@ -119,7 +119,6 @@ def sendRequest (dataPayload, server_address,performanceTest = None, max_tries=3
   return None
 
 def assembleMessage(commandNum,keyString=None,valueString=None):
-<<<<<<< HEAD
     #Define each byte array with fixed size
     messageBuff = bytearray()
     commandBuff = bytearray(1)
@@ -152,39 +151,7 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     return messageBuff    
     
     
-    
-=======
-  #Define each byte array with fixed size
-  messageBuff = bytearray()
-  commandBuff = bytearray(1)
-  keyBuff = bytearray(32)
-  vLengthBuff = bytearray(2)
-  valueBuff = bytearray(15000)
 
-  #Put value in byte array
-
-  commandBuff = struct.pack ('<b',commandNum)
-  messageBuff.extend(commandBuff)
-  
-  if not commandNum in {4,33,34,38}:
-    index = 0
-    for letter in keyString:    
-        struct.pack_into('<s',keyBuff,index,letter)
-        index += 1
-    messageBuff.extend(keyBuff)
-
-  if valueString:
-    valueBuff=valueString
-    vLengthBuff = struct.pack ('<h',len(valueString))
-    messageBuff.extend(vLengthBuff)
-    messageBuff.extend(valueBuff)
-  else:
-    if commandNum in {1,32}:
-        messageBuff.extend(struct.pack ('<h',0))
-        messageBuff.extend(valueBuff)
-  return messageBuff
-
->>>>>>> 703ecaddd27c8de1d5acd4bfa1368aee62d5fff7
 def startTimer():
   #start timer
   timer = datetime.datetime.now()
