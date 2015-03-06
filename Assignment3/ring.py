@@ -16,7 +16,6 @@ class Ring(object):
   def add_node(self, node):
     key = self.hash_key(node)
     self.ring[key] = node
-    print self.ring
     self.sorted_keys.append(key)
 
     self.sorted_keys.sort()
@@ -25,6 +24,11 @@ class Ring(object):
     key = self.hash_key(node)
     del self.ring[key]
     self.sorted_keys.remove(key)
+
+  def update_ring(self, nodes):
+    del self.sorted_keys[:]
+    for n in nodes:
+      self.add_node(n)
 
   def get_node(self, key_string):
     return self.get_node_position(string_key)[0]

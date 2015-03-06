@@ -116,6 +116,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
         break
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
+  return None
 
 def assembleMessage(commandNum,keyString=None,valueString=None):
   #Define each byte array with fixed size
