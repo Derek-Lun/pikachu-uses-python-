@@ -76,14 +76,14 @@ command = {
 
 def node_operation (request):
   global results_queue
-  if request['command'] in (1,2,3,32,33):
+  if request['command'] in {1,2,3,32,33}:
     try:
       status, value = command[request['command']](request['key'], request['value'])
     except:
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in (4,34,35,36): 
+  elif request['command'] in {4,34,35,36}: 
     command[request['command']](request)
   else:
       no_operation(request)
@@ -182,7 +182,7 @@ def removeCache(id):
 
 def routeMessage(rdata, request):
   current = True
-  if request['command'] in (1,2,3,32):
+  if request['command'] in {1,2,3,32}:
     position = ring.get_node_position(request['key'])[0]
     if position != ring.node:
       current = False
@@ -191,7 +191,7 @@ def routeMessage(rdata, request):
       sock.sendto(forward, address)
 
   if current:
-    task = Thread(target=node_operation, args=((request),))
+    task = Thread(target=node_operation, args=(request,))
     task.start()
     task.join()
 
@@ -235,8 +235,8 @@ while operating == True:
 
     cache = cacheMsg(rdata[0:16])
     if cache:
-        sock.sendto(cache, address)
-        continue
+      sock.sendto(cache, address)
+      continue
 
     req = parseCommand(rdata, address)
     print "Received: ",
@@ -245,5 +245,5 @@ while operating == True:
     routeMessage(rdata, req)
 
   except socket.error:
-      #print "Socket closed"
-      pass
+    #print "Socket closed"
+    pass
