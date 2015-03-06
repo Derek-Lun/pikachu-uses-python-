@@ -18,7 +18,7 @@ results_queue = Queue()
 cache_request = {}
 forwarded_request = {}
 check_status_timer = time.time()
-check_stauus_time = 10
+check_status_time = 10
 
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
@@ -36,6 +36,7 @@ response_status = {
   'alive': 34,
   'forwarded': 35,
   'f_reply': 36,
+  'update_ring': 37
 }
 
 def shutdown (request):
@@ -52,14 +53,12 @@ def no_operation(request):
   results_queue.put((request, 'do_not_recognize', None))
 
 def checkStatus():
-  #global check_status_timer
+  global check_status_timer
+  global check_status_time
   if (time.time() - check_status_timer > check_status_time):
     print "time to check status"
     check_status_timer = time.time()
-    for x in range (server_list:
-      if socket.gethostbyname(server) == node.ip_string:
-
-
+    checkSuccessor()
 
 def add_node(request):
   global ring
@@ -147,7 +146,6 @@ def node_operation (request):
   else:
       no_operation(request)
 
-  'update_ring': 37
 def parseCommand (recv, address):
   request = {}
   request['address'] = address
@@ -240,7 +238,7 @@ def routeMessage(rdata, request):
     task.start()
     task.join()
 
-def intialization():
+def checkSuccessor(string = None):
   global node
   data = None
   local_host_name = socket.getfqdn()
@@ -252,6 +250,12 @@ def intialization():
   self = index
 
   while not data:
+    if string != "init":
+      try:
+        print "Remove from ring:" + socket.gethostbyname(server_list[index])
+        ring.remove_node(socket.gethostbyname(server_list[index]))
+      except:
+        pass
     index += 1
     index = index % len(server_list)
     if index == self:
@@ -270,7 +274,7 @@ operating = True
 
 print "Listening on %s" % server_address[1]
 
-intialization()
+checkSuccessor("init")
 
 while operating == True:
   checkStatus()
