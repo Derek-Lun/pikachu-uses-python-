@@ -17,7 +17,6 @@ server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.wa
 results_queue = Queue()
 cache_request = {}
 forwarded_request = {}
-check_status_timer = time.time()
 check_status_time = 10
 
 server_address = ("", 7790)
@@ -36,7 +35,8 @@ response_status = {
   'alive': 34,
   'forwarded': 35,
   'f_reply': 36,
-  'update_ring': 37
+  'update_ring': 37,
+  'report_death': 38
 }
 
 def shutdown (request):
@@ -73,7 +73,6 @@ def add_node(request):
     request['address'][1] = node.port
     request['address'] = tuple(request['address'])
     ring_list = ','.join(map(str, ring.ring.values()))
-    print ring_list
     results_queue.put((request, 'update_ring', ring_list))
     data = None
     local_host_name = socket.getfqdn()
@@ -85,8 +84,7 @@ def add_node(request):
     self = index
 
     while not data:
-      index += 1
-      index = index % len(server_list)
+      index = (index + 1) % len(server_list)
       if index == self:
         print "No other nodes are online"
         break;
@@ -96,6 +94,36 @@ def add_node(request):
 
     transfer_keys(node_add)
 
+def remove_node(request):
+  global ring
+  global node
+
+  delete_node = request['payload']
+
+  if node.host != delete_node:
+    ring.remove_node(delete_node)
+    ring.add(request['address'][0])
+
+    data = None
+    local_host_name = socket.getfqdn()
+    try:
+      index = server_list.index(local_host_name)
+    except:
+      index = -1
+
+    self = index
+
+    predecessor = index - 1;
+
+    while not server_list[predecessor] in ring.ring.values() :
+      predecessor = (predecessor - 1) % len(server_list)
+      if predecessor == self:
+        print "No other nodes are online"
+        break;
+    if predecessor != self:
+      predecessor = (socket.gethostbyname(predecessor), server_address[1])
+      message = assembleMessage(38, None, delete_node)
+      data = sendRequest(message)
 
 def forwarded(request):
   global results_queue
@@ -140,6 +168,7 @@ command = {
   35 : forwarded,
   36 : pass_on_reply,
   37 : update_ring,
+  38 : remove_node
 }
 
 def node_operation (request):
@@ -151,8 +180,9 @@ def node_operation (request):
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in {4,34,35,36,37}: 
+  elif request['command'] in {4,34,35,36,37,38}:
     command[request['command']](request)
+    print ring.ring.values()
   else:
       no_operation(request)
 
@@ -164,7 +194,7 @@ def parseCommand (recv, address):
     request['header'] = recv[0:16]
     request['command'] = struct.unpack_from('<b',recv, 16)
     request['command'] = request['command'][0]
-    if not request['command'] in (34,35,36,37):
+    if not request['command'] in (34,35,36,37,38):
       request['key'] = recv[17:49].split(b'\0',1)[0]
 
       if request['command'] == 1 or request['command'] == 32:
@@ -250,6 +280,7 @@ def routeMessage(rdata, request):
 
 def checkSuccessor(string = None):
   global node
+  global check_status_time
   data = None
   local_host_name = socket.getfqdn()
   try:
@@ -260,20 +291,55 @@ def checkSuccessor(string = None):
   self = index
 
   while not data:
+    command = 34
+    node_ip = node.host
     if string != "init":
+      command = 33
+      node_ip =  None
       try:
-        print "Remove from ring:" + socket.gethostbyname(server_list[index])
-        ring.remove_node(socket.gethostbyname(server_list[index]))
+        dest_ip = socket.gethostbyname(server_list[index])
+        if dest_ip != node.host:
+          predecessor = index - 1;
+          print "Remove from ring: " + dest_ip
+          ring.remove_node(dest_ip)
+          while not server_list[predecessor] in ring.ring.values() :
+            predecessor = (predecessor - 1) % len(server_list)
+            if predecessor == self:
+              print "No other nodes are online"
+              break;
+          if predecessor != self:
+            predecessor = (socket.gethostbyname(predecessor), server_address[1])
+            message = assembleMessage(38, None, dest_ip)
+            d = sendRequest(message)
       except:
         pass
-    index += 1
-    index = index % len(server_list)
+    index = (index + 1) % len(server_list)
     if index == self:
       print "No other nodes are online"
       break;
     successor = (server_list[index],server_address[1]);
-    message = assembleMessage(34, None,node.host)
+    message = assembleMessage(command, None,node_ip)
     data = sendRequest(message,successor)
+  print time.ctime()
+
+def check_status():
+  global operating
+  while operating == True:
+    checkSuccessor()
+    time.sleep(check_status_time)
+
+def send_reply():
+  global operating
+  global results_queue
+  if operating == True and not results_queue.empty():
+    result = results_queue.get()
+    if len(result) > 2:
+      reply = createReply(result[0], result[1], result[2])
+      sock.sendto(reply, result[0]['address'])
+      cacheMsg(rdata[0:16],reply)
+    else:
+      sock.sendto(result[0], result[1])
+      cacheMsg(result[0][0:16], result[0])
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -286,19 +352,15 @@ print "Listening on %s" % server_address[1]
 
 checkSuccessor("init")
 
+status_check = Thread(target=check_status)
+status_check.daemon =True
+status_check.start()
+
+reply_thread = Thread(target=send_reply)
+reply_thread.daemon = True
+reply_thread.start()
+
 while operating == True:
-  checkStatus()
-
-  if not results_queue.empty():
-    result = results_queue.get()
-    if len(result) > 2:
-      reply = createReply(result[0], result[1], result[2])
-      sock.sendto(reply, result[0]['address'])
-      cacheMsg(rdata[0:16],reply)
-    else:
-      sock.sendto(result[0], result[1])
-      cacheMsg(result[0][0:16], result[0])
-
   try:
     rdata, address = sock.recvfrom(16384)
     func = None
