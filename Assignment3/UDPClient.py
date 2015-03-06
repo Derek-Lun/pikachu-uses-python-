@@ -9,7 +9,7 @@ server_address = ( servers[0] , 7790)
 
 operating = True;
 while operating == True:
-    print "1: User Input 2: Performance Testing 3:Close Client"
+    print "1: User Input 2: Testing 3:Close Client"
     input = raw_input()
     if input == '1' :
         for i in range(len(servers)):
@@ -50,7 +50,7 @@ while operating == True:
                 print "Error: Invalid command. (1:put 2:get 3:remove 4:shutdown 32:put without overwrite)"
     elif input == '2':
         # Testing on all the servers
-        runTestCases((servers[0], 7790))
+        runTestCases((servers[2], 7790))
     elif input == '3':
         operating = False;
         print "Shutting down client..."

@@ -63,9 +63,8 @@ def parsePayload (received):
   size = struct.unpack_from('<h', r)[0]
 
   payload = []
-
   for i in range(size):
-    payload.append(r[i+4])
+    payload.append(r[i+2])
 
   return res_code,payload
 
