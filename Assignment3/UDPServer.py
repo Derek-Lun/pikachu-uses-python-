@@ -201,7 +201,10 @@ def intialization():
     index = server_list.index(local_host_name)
   except:
     index = -1
-  successor = (server_list[++index],server_address[1]);
+
+  index += 1
+  index = index % len(server_list)
+  successor = (server_list[index],server_address[1]);
   message = assembleMessage(34)
   data = sendRequest(message,successor)
 
