@@ -1,5 +1,4 @@
 import random
-
 DATA_LIMIT = 2000
 
 class Node(object):

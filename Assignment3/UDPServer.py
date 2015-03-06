@@ -69,6 +69,8 @@ def add_node(request):
       message = assembleMessage(34, None,node_add)
       data = sendRequest(message,successor)
 
+    transfer_keys(node_add)
+
 
 def forwarded(request):
   global results_queue
@@ -93,6 +95,14 @@ def pass_on_reply(request):
 def update_ring(request):
   ring_list = request['payload'].split(',')
   ring.update_ring(ring_list)
+
+def transfer_keys(node_add):
+  new_node = ring.hash_key(node_add)
+  for k in node.data.keys():
+    position = ring.get_node_position(request[k])[0]
+    if position == new_node:
+      message=assembleMessage(1,k,node.data[k])
+      sendRequest(message,(position,server_address[1]))
 
 command = {
   1 : node.put,
