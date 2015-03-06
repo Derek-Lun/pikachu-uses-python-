@@ -1,7 +1,7 @@
 from communication import *
 # Run the test cases and print out the result
-def runIntTestCases(server_address):
-    print "\n===============================Integrity Test===============================\n"
+def runTestCases(server_address):
+    print "\n===============Integrity and Performance Testing===============\n"
     print server_address
     # Invalid Command
     try:
@@ -128,9 +128,11 @@ def runIntTestCases(server_address):
         if data:
           data = sendRequest(assembleMessage(32,"4","ab&"), server_address,True)
           res_code,payload = parsePayload(data)
+          print "here1"
           assert res_code == 0
           data = sendRequest(assembleMessage(2,"4"), server_address)
           res_code,payload = parsePayload(data)
+          print "here2"
           assert ''.join(payload) == "ab&"
           print "\nPassed\n"
         else:
