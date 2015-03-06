@@ -118,44 +118,41 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
 
 def assembleMessage(commandNum,keyString=None,valueString=None):
-    #Define each byte array with fixed size
-    messageBuff = bytearray()
-    commandBuff = bytearray(1)
-    keyBuff = bytearray(32)
-    vLengthBuff = bytearray(2)
-    valueBuff = bytearray(15000)
+  #Define each byte array with fixed size
+  messageBuff = bytearray()
+  commandBuff = bytearray(1)
+  keyBuff = bytearray(32)
+  vLengthBuff = bytearray(2)
+  valueBuff = bytearray(15000)
 
-    #Put value in byte array
+  #Put value in byte array
 
-    commandBuff = struct.pack ('<b',commandNum)
-    messageBuff.extend(commandBuff)
-    
-    if not commandNum in (4,33,34):
-        index = 0
-        for letter in keyString:    
-            struct.pack_into('<s',keyBuff,index,letter)
-            index += 1
-        messageBuff.extend(keyBuff)
+  commandBuff = struct.pack ('<b',commandNum)
+  messageBuff.extend(commandBuff)
+  
+  if not commandNum in {4,33,34}:
+    index = 0
+    for letter in keyString:    
+        struct.pack_into('<s',keyBuff,index,letter)
+        index += 1
+    messageBuff.extend(keyBuff)
 
-
-    if valueString:
-        valueBuff=valueString
-        vLengthBuff = struct.pack ('<h',len(valueString))
-        messageBuff.extend(vLengthBuff)
+  if valueString:
+    valueBuff=valueString
+    vLengthBuff = struct.pack ('<h',len(valueString))
+    messageBuff.extend(vLengthBuff)
+    messageBuff.extend(valueBuff)
+  else:
+    if commandNum in {1,32}:
+        messageBuff.extend(struct.pack ('<h',0))
         messageBuff.extend(valueBuff)
-    else:
-        if commandNum == 1 or 32:
-            messageBuff.extend(struct.pack ('<h',0))
-            messageBuff.extend(valueBuff)
-    return messageBuff    
-    
-    
-    
+  return messageBuff
+
 def startTimer():
-    #start timer
-    timer = datetime.datetime.now()
+  #start timer
+  timer = datetime.datetime.now()
     
 def endTimer():
-    #end timer and calculate turnAroundTime
-    turnAroundTime = (datetime.datetime.now()-timer)
-    print "\nTurnaround Time: %.2f ms\n" % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
+  #end timer and calculate turnAroundTime
+  turnAroundTime = (datetime.datetime.now()-timer)
+  print "\nTurnaround Time: %.2f ms\n" % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
