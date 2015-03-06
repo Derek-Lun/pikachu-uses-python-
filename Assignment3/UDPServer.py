@@ -17,7 +17,7 @@ server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.wa
 results_queue = Queue()
 cache_request = {}
 forwarded_request = {}
-check_status_time = 30
+check_status_time = 10
 
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
@@ -99,11 +99,9 @@ def remove_node(request):
   global node
 
   delete_node = request['payload']
+  ring.add_node(request['address'][0])
 
-  if node.host != delete_node:
-    ring.remove_node(delete_node)
-    ring.add(request['address'][0])
-
+  if node.host != delete_node and (delete_node in ring.ring.values()):
     data = None
     local_host_name = socket.getfqdn()
     try:
@@ -124,6 +122,8 @@ def remove_node(request):
       predecessor = (socket.gethostbyname(predecessor), server_address[1])
       message = assembleMessage(38, None, delete_node)
       data = sendRequest(message,predecessor,None,1)
+
+    ring.remove_node(delete_node)
 
 def forwarded(request):
   global results_queue
@@ -280,6 +280,8 @@ def routeMessage(rdata, request):
 def checkSuccessor(string = None):
   global node
   global check_status_time
+  global ring
+
   data = None
   local_host_name = socket.getfqdn()
   try:
@@ -296,24 +298,24 @@ def checkSuccessor(string = None):
       command = 33
       node_ip =  None
 
-      predecessor = index - 1
       try:
-        while not server_list[predecessor] in ring.ring.values() :
-          predecessor = (predecessor - 1) % len(server_list)
-          if predecessor == self:
-            print "And it comes to a full circle"
-            break;
-        print predecessor, socket.gethostbyname(predecessor)
-        if predecessor != self:
-          predecessor = (socket.gethostbyname(predecessor), server_address[1])
-          message = assembleMessage(38, None, dest_ip)
-          d = sendRequest(message,predecessor,None,1)
-        dest_ip = socket.gethostbyname(server_list[index])
-        if dest_ip != node.host:
-          predecessor = index - 1;
+        if index != self:
+          predecessor_index = self - 1;
+          predecessor_ip = socket.gethostbyname(server_list[predecessor_index])
+          dest_ip = socket.gethostbyname(server_list[index])
+          while not (predecessor_ip in ring.ring.values()) :
+            predecessor_index = (predecessor_index - 1) % len(server_list)
+            predecessor_ip = socket.gethostbyname(server_list[predecessor_index])
+            if predecessor == self:
+              print "And it comes to a full circle"
+              break;
+          if predecessor_index != self:
+            predecessor = (predecessor_ip, server_address[1])
+            message = assembleMessage(38, None, dest_ip)
+            d = sendRequest(message,predecessor,None,1)
+
           print "Remove from ring: " + dest_ip
           ring.remove_node(dest_ip)
-
       except:
         pass
     index = (index + 1) % len(server_list)
@@ -324,7 +326,6 @@ def checkSuccessor(string = None):
     successor = (server_list[index],server_address[1]);
     message = assembleMessage(command, None,node_ip)
     data = sendRequest(message,successor,None,1)
-    print datas
   print time.ctime()
 
 def check_status():
