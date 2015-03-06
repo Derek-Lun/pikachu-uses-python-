@@ -8,6 +8,11 @@ from Queue import Queue
 from threading import Thread
 from node import *
 from ring import *
+from communication import *
+
+PASS_ON_VALUE = 2
+
+server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.washington.edu"]
 
 results_queue = Queue()
 cache_request = {}
@@ -15,7 +20,7 @@ forwarded_request = {}
 
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
-ring = Ring(node.address())
+ring = Ring(node.address(), server_address[1])
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -32,15 +37,14 @@ def no_operation(request):
 
 def add_node(request):
   global ring
-  node = request['address'][0] + ":" + str(request['address'][1])
+  node = request['address'][0]
   ring.add_node(node)
+  print ring.ring.values()
   results_queue.put((request, 'success', None))
 
 def forwarded(request):
   global results_queue
   global ring
-  node = request['address'][0] + ":" + str(request['address'][1])
-  ring.add_node(node)
   payload = request['payload']
   req = parseCommand(payload, request['address'])
 
@@ -97,33 +101,6 @@ response_status = {
   'f_reply': 36,
 }
 
-def requestID ():
-  global server_address
-  rID = bytearray()
-  ip = socket.gethostbyname(socket.gethostname()).split('.')
-
-  hostAddress = []
-
-  for elem in ip:
-    y = int(elem)
-    hostAddress.append(struct.pack('<B',y))
-
-  rID.extend(hostAddress)
-
-  port = struct.pack('<h',server_address[1])
-
-  rID.extend(port)
-
-  randomGen = struct.pack('<H', random.randint(0, 65534))
-
-  rID.extend(randomGen)
-
-  millis = struct.pack('<Q', long(round(time.time() * 1000)))
-
-  rID.extend(millis)
-
-  return rID
-
 
 def parseCommand (recv, address):
   request = {}
@@ -173,7 +150,8 @@ def createReply (request,status, value = None):
 
 def createForward (rdata, request):
   global forwarded_request
-  forward = requestID()
+  global server_address
+  forward = requestID(server_address[1])
 
   forwarded_request[str(forward)] = request['address']
 
@@ -208,8 +186,7 @@ def routeMessage(rdata, request):
     position = ring.get_node_position(request['key'])[0]
     if position != ring.node:
       current = False
-      position = position.split(':')
-      address = (position[0], int(position[1]))
+      address = (position, server_address[1])
       forward = createForward(rdata, request)
       sock.sendto(forward, address)
 
@@ -218,6 +195,15 @@ def routeMessage(rdata, request):
     task.start()
     task.join()
 
+def intialization():
+  local_host_name = socket.getfqdn()
+  try:
+    index = server_list.index(local_host_name)
+  except:
+    index = -1
+  successor = (server_list[++index],server_address[1]);
+  message = assembleMessage(34)
+  data = sendRequest(message,successor)
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -228,7 +214,7 @@ operating = True
 
 print "Listening on %s" % server_address[1]
 
-ring.intialization()
+intialization()
 
 while operating == True:
 

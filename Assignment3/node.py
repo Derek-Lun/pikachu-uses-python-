@@ -42,7 +42,7 @@ class Node(object):
       return 'dne', None
 
   def address(self):
-    return self.host + ":" + str(self.port)
+    return self.host
 
   def report_alive(self,key=None, value=None):
     return 'alive', None

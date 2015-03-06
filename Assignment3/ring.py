@@ -1,19 +1,15 @@
 import hashlib
-import random
-
-PASS_ON_VALUE = 2
-
-server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.washington.edu"]
 
 class Ring(object):
 
   """Initializes the Ring Object"""
-  def __init__(self, node):
+  def __init__(self, node, port):
 
     self.ring = dict()
     self.sorted_keys = []
 
     self.node = node
+    self.server_port = port
 
     self.add_node(node)
 
@@ -54,14 +50,3 @@ class Ring(object):
     m =  hashlib.sha224(key_string).hexdigest()
     return long(m, 16)
 
-  def gossip(self, initialize=False):
-    talk_to = random.sample(server_list, PASS_ON_VALUE)
-    if not initialize:
-      rand = random.random()
-      if (rand < 1/len(server_list)):
-        return True;
-    else:
-      status, value = report_alive()
-
-  def intialization(self):
-    self.gossip()

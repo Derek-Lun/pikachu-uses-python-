@@ -13,7 +13,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Define timer
 timer = datetime.datetime.now()
 
-def requestID ():
+def requestID (port):
   rID = bytearray()
   ip = socket.gethostbyname(socket.gethostname()).split('.')
 
@@ -25,7 +25,7 @@ def requestID ():
 
   rID.extend(hostAddress)
 
-  port = struct.pack('<h',localport)
+  port = struct.pack('<h',port)
 
   rID.extend(port)
 
@@ -74,7 +74,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None):
   numTries = 1
   done = False
 
-  data = requestID()
+  data = requestID(server_address[1])
 
   rID = bytearray()
 
@@ -124,7 +124,6 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     keyBuff = bytearray(32)
     vLengthBuff = bytearray(2)
     valueBuff = bytearray(15000)
-
 
     #Put value in byte array
 
