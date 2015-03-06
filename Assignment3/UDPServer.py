@@ -17,10 +17,26 @@ server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.wa
 results_queue = Queue()
 cache_request = {}
 forwarded_request = {}
+check_status_timer = time.time()
+check_stauus_time = 10
 
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
 ring = Ring(node.address(), server_address[1])
+
+
+response_status = {
+  'success': 0,
+  'dne': 1,
+  'oos': 2,
+  'sys_overload': 3,
+  'internal_failure': 4,
+  'do_not_recognize': 5,
+  'key_exist' : 32,
+  'alive': 34,
+  'forwarded': 35,
+  'f_reply': 36,
+}
 
 def shutdown (request):
   print 'Operation: shutdown'
@@ -34,6 +50,16 @@ def no_operation(request):
   print 'Operation: do not recognize'
   global results_queue
   results_queue.put((request, 'do_not_recognize', None))
+
+def checkStatus():
+  #global check_status_timer
+  if (time.time() - check_status_timer > check_status_time):
+    print "time to check status"
+    check_status_timer = time.time()
+    for x in range (server_list:
+      if socket.gethostbyname(server) == node.ip_string:
+
+
 
 def add_node(request):
   global ring
@@ -91,7 +117,7 @@ def pass_on_reply(request):
 
   payload = request['payload']
   results_queue.put((payload, forwarded_request[str(request['header'])]))
-  
+
 def update_ring(request):
   ring_list = request['payload'].split(',')
   ring.update_ring(ring_list)
@@ -131,21 +157,7 @@ def node_operation (request):
   else:
       no_operation(request)
 
-response_status = {
-  'success': 0,
-  'dne': 1,
-  'oos': 2,
-  'sys_overload': 3,
-  'internal_failure': 4,
-  'do_not_recognize': 5,
-  'key_exist' : 32,
-  'alive': 34,
-  'forwarded': 35,
-  'f_reply': 36,
   'update_ring': 37
-}
-
-
 def parseCommand (recv, address):
   request = {}
   request['address'] = address
@@ -209,7 +221,6 @@ def createForward (rdata, request):
 
   return forward_str
 
-
 def cacheMsg(id,reply = None):
   if reply:
     if not id in cache_request:
@@ -264,7 +275,7 @@ def intialization():
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 sock.bind(server_address)
-
+sock.setblocking(0)
 operating = True
 
 print "Listening on %s" % server_address[1]
@@ -272,6 +283,7 @@ print "Listening on %s" % server_address[1]
 intialization()
 
 while operating == True:
+  checkStatus()
 
   if not results_queue.empty():
     result = results_queue.get()
@@ -282,7 +294,6 @@ while operating == True:
     else:
       sock.sendto(result[0], result[1])
       cacheMsg(result[0][0:16], result[0])
-
 
   try:
     rdata, address = sock.recvfrom(16384)
