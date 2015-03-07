@@ -120,7 +120,8 @@ def runTestCases(server_address):
             print "No response received."
             assert False
     except AssertionError:
-        print "\nFailed\n"            
+        print "\nFailed\n"   
+                  
     # Put without overwrite - success case
     try:
         print "Test Case: put without overwrite - success case"
@@ -297,37 +298,36 @@ def runTestCases(server_address):
             assert False
     except AssertionError:
         print "\nFailed\n"            
-    # Out of Space error - Put 100001 (key,pair)
-#     try:
-#         print "Test Case: Out of Space"
-#         key = ""
-#         for i in range(0,100001):
-#             sendRequest(assembleMessage(1,str(i),"abc"), server_address)
-#         #print "Key to be sent: " + key
-#         data = sendRequest(assembleMessage(1,"max",";;"), server_address,True)
-#         if data:
-#           res_code,payload = parsePayload(data)
-#           assert res_code == 2
-#           print "\nPassed\n"
-#         else:
-#             print "No response received."
-#             assert False
-#     except AssertionError:
-#         print "\nFailed\n"            
-    
-#     # shutdown - success case
-#     try:
-#         data = sendRequest(assembleMessage(4), server_address,True)
-#         if data:
-#           res_code,payload = parsePayload(data)
-#           assert res_code == 0
-#           data = sendRequest(assembleMessage(1,"nnew","123"), server_address)
-#           if data:
-#               assert False
-#           else:
-#               print "\nPassed\n"
-#         else:
-#             print "No response received."
-#             assert False
-#     except AssertionError:
-#         print "\nFailed\n"        
+    # Out of Space error - Put 3 (key,pair) [1998 pairs already existed]
+    try:
+         print "Test Case: Out of Space"
+         key = ""
+
+         #print "Key to be sent: " + key
+         data = sendRequest(assembleMessage(1,"max",";;"), server_address)
+         if data:
+           data = sendRequest(assembleMessage(1,"max2",";;"), server_address)
+           data = sendRequest(assembleMessage(1,"max3",";;"), server_address,True)
+           res_code,payload = parsePayload(data)
+           assert res_code == 2
+           print "\nPassed\n"
+         else:
+             print "No response received."
+             assert False
+    except AssertionError:
+         print "\nFailed\n"            
+       
+     # shutdown - success case
+    try:
+         data = sendRequest(assembleMessage(4), server_address)
+         if data:
+            assert False
+         else:
+             print "No response received."
+             data = sendRequest(assembleMessage(1,"max2223",",,,"), server_address)
+             if data:
+               assert False
+             else:
+               print "\nPassed\n"
+    except AssertionError:
+         print "\nFailed\n"        
