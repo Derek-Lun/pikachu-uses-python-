@@ -1,3 +1,0 @@
-planetlab1.cs.ubc.ca
-plonk.cs.uwaterloo.ca
-cs-planetlab3.cs.surrey.sfu.ca

@@ -12,12 +12,12 @@ from communication import *
 
 PASS_ON_VALUE = 2
 
-server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.washington.edu"]
+server_list = [line.strip() for line in open('node.txt')]
 
 results_queue = Queue()
 cache_request = {}
 forwarded_request = {}
-check_status_time = 10
+check_status_time = 43
 
 server_address = ("", 7790)
 node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
@@ -319,8 +319,10 @@ def checkSuccessor(string = None):
             message = assembleMessage(38, None, dest_ip)
             d = sendRequest(message,predecessor,None,1)
 
-          print "Remove from ring: " + dest_ip
-          ring.remove_node(dest_ip)
+
+          if dest_ip in ring.ring.values():
+            print "Remove from ring: " + dest_ip
+            ring.remove_node(dest_ip)
       except:
         pass
     index = (index + 1) % len(server_list)

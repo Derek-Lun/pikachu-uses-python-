@@ -128,7 +128,7 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     commandBuff = struct.pack ('<b',commandNum)
     messageBuff.extend(commandBuff)
     
-    if not commandNum in (4,33,34):
+    if not commandNum in (4,33,34,38):
         index = 0
         for letter in keyString:    
             struct.pack_into('<s',keyBuff,index,letter)

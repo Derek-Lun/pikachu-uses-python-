@@ -1,3 +1,0 @@
-planetlab-js2.cert.org.cn
-planetlab-1.scie.uestc.edu.cn
-planetlab2.cqupt.edu.cn

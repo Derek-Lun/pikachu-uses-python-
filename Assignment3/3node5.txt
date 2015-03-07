@@ -1,0 +1,3 @@
+planetlab3.net.in.tum.de
+planetlab01.tkn.tu-berlin.de
+planetlab2.informatik.uni-erlangen.de
