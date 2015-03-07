@@ -367,7 +367,7 @@ def runTestCases(server_address,file_object):
         file_object.write("\nFailed\n\n")
         print "\nFailed\n"            
     # Out of Space error - Put three key pairs [1998 pairs already existed]
-    if server_address[0] == "pl2.zju.edu.cn":
+    if server_address[0] == "planetlab2.csee.usf.edu":
         try:
              file_object.write("Test Case: Out of Space error - Put three key pairs\n")
              print "Test Case: Out of Space error - Put three key pairs"
@@ -376,7 +376,7 @@ def runTestCases(server_address,file_object):
              #print "Key to be sent: " + key
              data = sendRequest(assembleMessage(1,"max",";;"), server_address)
              if data:
-               data = sendRequest(assembleMessage(1,"max2",";;"), server_address)
+               sendRequest(assembleMessage(1,"max2",";;"), server_address)
                data = sendRequest(assembleMessage(1,"max3",";;"), server_address,file_object)
                res_code,payload = parsePayload(data)
                assert res_code == 2
