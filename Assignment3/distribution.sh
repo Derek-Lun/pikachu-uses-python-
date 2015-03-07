@@ -9,9 +9,10 @@ do
     echo ${node}
     ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo rm -rf *; mkdir Group10"
     scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:Group10/node.txt
-    # scp -i ~/.ssh/id_rsa dist/UDPServer/* ubc_eece411_5@${node}:Group10/.
+    scp -i ~/.ssh/id_rsa dist/UDPServer/* ubc_eece411_5@${node}:Group10/.
+    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 planetlab1.cs.ubc.ca "chmod +x '~/Group10/UDPServer'"
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "killall node; cd group10; node_modules/forever/bin/forever start server.js; exit"
     # scp -i ~/.ssh/id_rsa MonitoringNode/server.js ubc_eece411_5@${node}:group10/server.js
-    scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
+    # scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "npm config set strict-ssl false; sudo chown -R $USER ~/.npm; sudo chown -R $USER /usr/local; npm install -g npm; cd group10; sudo chown -R $USER ~/.npm; npm install; npm install forever; node_modules/forever/bin/forever server.js; exit"
 done
