@@ -155,6 +155,7 @@ def startTimer():
 def endTimer(timer,file_object):
   #end timer and calculate turnAroundTime
   turnAroundTime = (datetime.datetime.now()-timer)
+  
   time = str(round((float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0),2))
   print "\nTurnaround Time: "+time+" ms\n"
   file_object.write("\nTurnaround Time: "+time+" ms\n\n")

@@ -3,7 +3,7 @@ from communication import *
 def runTestCases(server_address,file_object):
     file_object.write("\n===============Integrity and Performance Testing===============\n")
     print "\n===============Integrity and Performance Testing===============\n"
-    file_object.write("Testing on "+server_address[0])
+    file_object.write("Testing on "+server_address[0]+"\n")
     print server_address
     # Invalid Command
     try:
