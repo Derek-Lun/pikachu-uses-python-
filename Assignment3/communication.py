@@ -84,7 +84,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
       # Send data
       print 'sending data to ' + server_address[0] 
       print 'Trying %s time' %numTries
-      if performanceTest:
+      if file_object:
       # Start timer for Turnaround time
         timer = startTimer() 
       
@@ -101,7 +101,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
       #if parseID(rID, data):
       if len(data) >= 16:
         done = True
-        if performanceTest:
+        if file_object:
           # End timer and print Turnaround time
           endTimer(timer,file_object)
         return data

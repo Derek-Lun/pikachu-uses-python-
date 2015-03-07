@@ -1,638 +1,124 @@
 
 ===============Integrity and Performance Testing===============
-Testing on planetlab1.cs.ubc.caTest Case: Invalid Command
+Testing on planetlab1.cs.ubc.ca
+Test Case: Invalid Command
+
+Turnaround Time: 19.0 ms
+
 
 Passed
 
 Test Case: put - success case
 
+Turnaround Time: 4.0 ms
+
+
 Passed
 
 Test Case: put - empty key
 
+Turnaround Time: 5.0 ms
+
+
 Passed
 
 Test Case: put - empty value
-No response received.
 
-Failed
+Turnaround Time: 5.0 ms
+
+
+Passed
 
 Test Case: put - existing key
+
+Turnaround Time: 4.0 ms
+
 
 Passed
 
 Test Case: put - key with the maximum length
-No response received.
 
-Failed
+Turnaround Time: 4.0 ms
+
+
+Passed
 
 Test Case: put - value with the maximum length
+
+Turnaround Time: 8.0 ms
+
 
 Passed
 
 Test Case: put without overwrite - success case
-No response received.
 
-Failed
+Turnaround Time: 3.0 ms
+
+
+Passed
 
 Test Case: put without overwrite - empty key
+
+Turnaround Time: 3.0 ms
+
 
 Passed
 
 Test Case: put without overwrite - empty value
-No response received.
 
-Failed
+Turnaround Time: 3.0 ms
+
+
+Passed
 
 Test Case: put without overwrite - existing key
+
+Turnaround Time: 4.0 ms
+
 
 Passed
 
 Test Case: put without overwrite - key with the maximum length
-No response received.
 
-Failed
+Turnaround Time: 3.0 ms
+
+
+Passed
 
 Test Case: put without overwrite - value with the maximum length
+
+Turnaround Time: 10.0 ms
+
 
 Passed
 
 Test Case: get - non-existing key
-No response received.
 
-Failed
+Turnaround Time: 5.0 ms
 
-Test Case: remove - success case
-No response received.
-
-Failed
-
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
-
-shutdown - success case
-No response received.
 
 Passed
 
-
-===============Integrity and Performance Testing===============
-Testing on planetlab1.eecs.ucf.eduTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
 Test Case: remove - success case
-No response received.
 
-Failed
+Turnaround Time: 3.0 ms
 
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
-
-shutdown - success case
-No response received.
 
 Passed
 
-
-===============Integrity and Performance Testing===============
-Testing on planetlab2.ustc.edu.cnTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
-Test Case: remove - success case
-No response received.
-
-Failed
-
 Test Case: remove - non-existing (key,value)
-No response received.
 
-Failed
+Turnaround Time: 5.0 ms
 
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
-
-shutdown - success case
-No response received.
 
 Passed
 
-
-===============Integrity and Performance Testing===============
-Testing on plnode-04.gpolab.bbn.comTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
-Test Case: remove - success case
-No response received.
-
-Failed
-
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
 Test Case: remove - key with the maximum length
-No response received.
 
-Failed
+Turnaround Time: 4.0 ms
 
-shutdown - success case
-No response received.
 
 Passed
-
-
-===============Integrity and Performance Testing===============
-Testing on planetlab2.csuohio.eduTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
-Test Case: remove - success case
-No response received.
-
-Failed
-
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
-
-shutdown - success case
-No response received.
-
-Passed
-
-
-===============Integrity and Performance Testing===============
-Testing on pl2.zju.edu.cnTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
-Test Case: remove - success case
-No response received.
-
-Failed
-
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: Out of Space error - Put three key pairs
-No response received.
-
-Failed
-
-shutdown - success case
-No response received.
-
-Passed
-
-
-===============Integrity and Performance Testing===============
-Testing on ebb.colgate.eduTest Case: Invalid Command
-No response received.
-
-Failed
-
-Test Case: put - success case
-No response received.
-
-Failed
-
-Test Case: put - empty key
-No response received.
-
-Failed
-
-Test Case: put - empty value
-No response received.
-
-Failed
-
-Test Case: put - existing key
-No response received.
-
-Failed
-
-Test Case: put - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - success case
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - empty value
-No response received.
-
-Failed
-
-Test Case: put without overwrite - existing key
-No response received.
-
-Failed
-
-Test Case: put without overwrite - key with the maximum length
-No response received.
-
-Failed
-
-Test Case: put without overwrite - value with the maximum length
-No response received.
-
-Failed
-
-Test Case: get - non-existing key
-No response received.
-
-Failed
-
-Test Case: remove - success case
-No response received.
-
-Failed
-
-Test Case: remove - non-existing (key,value)
-No response received.
-
-Failed
-
-Test Case: remove - key with the maximum length
-No response received.
-
-Failed
 
 shutdown - success case
 No response received.
