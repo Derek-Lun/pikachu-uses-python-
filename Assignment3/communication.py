@@ -10,9 +10,6 @@ localport = 4000
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Define timer
-timer = datetime.datetime.now()
-
 def requestID (port):
   rID = bytearray()
   ip = socket.gethostbyname(socket.gethostname()).split('.')
@@ -68,7 +65,7 @@ def parsePayload (received):
 
   return res_code,payload
 
-def sendRequest (dataPayload, server_address,performanceTest = None, max_tries=3):
+def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
   timeoutInterval = 1000
   numTries = 1
   done = False
@@ -89,7 +86,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None, max_tries=3
       print 'Trying %s time' %numTries
       if performanceTest:
       # Start timer for Turnaround time
-        startTimer() 
+        timer = startTimer() 
       
       sent = sock.sendto(data, server_address)
 
@@ -106,7 +103,7 @@ def sendRequest (dataPayload, server_address,performanceTest = None, max_tries=3
         done = True
         if performanceTest:
           # End timer and print Turnaround time
-          endTimer()
+          endTimer(timer,file_object)
         return data
     except socket.error as serr:
       print serr
@@ -153,9 +150,11 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
 
 def startTimer():
   #start timer
-  timer = datetime.datetime.now()
+  return datetime.datetime.now()
     
-def endTimer():
+def endTimer(timer,file_object):
   #end timer and calculate turnAroundTime
   turnAroundTime = (datetime.datetime.now()-timer)
-  print "\nTurnaround Time: %.2f ms\n" % (float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0)
+  time = str(round((float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0),2))
+  print "\nTurnaround Time: "+time+" ms\n"
+  file_object.write("\nTurnaround Time: "+time+" ms\n\n")
