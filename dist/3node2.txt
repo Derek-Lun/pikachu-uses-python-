@@ -1,0 +1,3 @@
+planet1.pnl.nitech.ac.jp
+planetlab1.dojima.wide.ad.jp
+planetlab4.goto.info.waseda.ac.jp

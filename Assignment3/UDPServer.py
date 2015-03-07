@@ -12,7 +12,7 @@ from communication import *
 
 PASS_ON_VALUE = 2
 
-server_list = ["planetlab1.cs.ubc.ca","plonk.cs.uwaterloo.ca","planetlab03.cs.washington.edu"]
+server_list = [line.strip() for line in open('node.txt')]
 
 results_queue = Queue()
 cache_request = {}
