@@ -144,6 +144,7 @@ def assembleMessage(commandNum,keyString=None,valueString=None):
     else:
         if commandNum in (1,32):
             messageBuff.extend(struct.pack ('<h',0))
+
     return messageBuff    
     
     
@@ -158,4 +159,4 @@ def endTimer(timer,file_object):
   
   time = str(round((float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0),2))
   print "\nTurnaround Time: "+time+" ms\n"
-  file_object.write("\nTurnaround Time: "+time+" ms\n\n")
+  file_object.write("Turnaround Time: "+time+" ms\n\n")

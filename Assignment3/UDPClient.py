@@ -10,7 +10,7 @@ server_address = ( servers[0] , 7790)
 
 operating = True;
 while operating == True:
-    print "1: User Input 2: Testing 3:Close Client"
+    print "1: Manual Input 2: Testing (This will shutdown the server.) 3:Close Client"
     input = raw_input()
     if input == '1' :
         for i in range(len(servers)):

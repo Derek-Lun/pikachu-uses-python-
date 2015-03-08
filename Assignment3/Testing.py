@@ -1,7 +1,9 @@
 from communication import *
+from time import strftime
 # Run the test cases and print out the result
 def runTestCases(server_address,file_object):
-    file_object.write("\n===============Integrity and Performance Testing===============\n")
+    file_object.write("===============Integrity and Performance Testing===============\n")
+    file_object.write("Time:"+strftime("%Y-%m-%d %H:%M:%S")+"\n")
     print "\n===============Integrity and Performance Testing===============\n"
     file_object.write("Testing on "+server_address[0]+"\n")
     print server_address
@@ -127,30 +129,31 @@ def runTestCases(server_address,file_object):
     except AssertionError:
         file_object.write("\nFailed\n\n")
         print "\nFailed\n"        
-    # Put - value with a very long length
-    try:
-        file_object.write("Test Case: put - value with the maximum length\n")
-        print "Test Case: put - value with the maximum length"
-        value = ""
-        for i in range(0,15000):
-            value += '2'
-        #print "Value to be sent: " + value
-        data = sendRequest(assembleMessage(1,'\'MM\',`~-',value), server_address,file_object)
-        if data:
-          res_code,payload = parsePayload(data)
-          assert res_code == 0
-          data = sendRequest(assembleMessage(2,'\'MM\',`~-'), server_address)
-          res_code,payload = parsePayload(data)
-          assert ''.join(payload) == value
-          file_object.write("\nPassed\n\n")
-          print "\nPassed\n"
-        else:
-            file_object.write("No response received.\n")
-            print "No response received."
-            assert False
-    except AssertionError:
-        file_object.write("\nFailed\n\n")
-        print "\nFailed\n"   
+#     # Put - value with the maximum length\
+#     try:
+#         file_object.write("Test Case: put - value with the maximum length\n")
+#         print "Test Case: put - value with the maximum length"
+#         value = ""
+#         for i in range(0,15000):#15000
+#             value += '2'
+#         #print "Value to be sent: " + value
+#         print "length:"+str(len(value))
+#         data = sendRequest(assembleMessage(1,'111',value), server_address,file_object)
+#         if data:
+#           res_code,payload = parsePayload(data)
+#           assert res_code == 0
+#           data = sendRequest(assembleMessage(2,'111'), server_address)
+#           res_code,payload = parsePayload(data)
+#           assert ''.join(payload) == value
+#           file_object.write("\nPassed\n\n")
+#           print "\nPassed\n"
+#         else:
+#             file_object.write("No response received.\n")
+#             print "No response received."
+#             assert False
+#     except AssertionError:
+#         file_object.write("\nFailed\n\n")
+#         print "\nFailed\n"   
                   
     # Put without overwrite - success case
     try:
@@ -261,31 +264,31 @@ def runTestCases(server_address,file_object):
     except AssertionError:
         file_object.write("\nFailed\n\n")
         print "\nFailed\n"            
-    # Put without overwrite - value with a large length  
-    try:
-        file_object.write("Test Case: put without overwrite - value with the maximum length\n")
-        print "Test Case: put without overwrite - value with the maximum length"
-        value = ""
-        for i in range(0,15000):
-            value += '4'
-        #print "Value to be sent: " + value
-        data = sendRequest(assembleMessage(3,'\'M\fsdfdsfsdfdasfasff'), server_address)
-        if data:
-          data = sendRequest(assembleMessage(1,'\'M\fsdfdsfsdfdasfasff',value), server_address,file_object)
-          res_code,payload = parsePayload(data)
-          assert res_code == 0
-          data = sendRequest(assembleMessage(2,'\'M\fsdfdsfsdfdasfasff'), server_address)
-          res_code,payload = parsePayload(data)
-          assert ''.join(payload) == value
-          file_object.write("\nPassed\n\n")
-          print "\nPassed\n"
-        else:
-            file_object.write("No response received.\n")
-            print "No response received."
-            assert False
-    except AssertionError:
-        file_object.write("\nFailed\n\n")
-        print "\nFailed\n"            
+#     # Put without overwrite - value with the maximum length
+#     try:
+#         file_object.write("Test Case: put without overwrite - value with the maximum length\n")
+#         print "Test Case: put without overwrite - value with the maximum length"
+#         value = ""
+#         for i in range(0,15000):
+#             value += '4'
+#         #print "Value to be sent: " + value
+#         data = sendRequest(assembleMessage(3,'\'M\fsdfdsfsdfdasfasff'), server_address)
+#         if data:
+#           data = sendRequest(assembleMessage(32,'\'M\fsdfdsfsdfdasfasff',value), server_address,file_object)
+#           res_code,payload = parsePayload(data)
+#           assert res_code == 0
+#           data = sendRequest(assembleMessage(2,'\'M\fsdfdsfsdfdasfasff'), server_address)
+#           res_code,payload = parsePayload(data)
+#           assert ''.join(payload) == value
+#           file_object.write("\nPassed\n\n")
+#           print "\nPassed\n"
+#         else:
+#             file_object.write("No response received.\n")
+#             print "No response received."
+#             assert False
+#     except AssertionError:
+#         file_object.write("\nFailed\n\n")
+#         print "\nFailed\n"            
     # Get - non-existing key
     try:
         file_object.write("Test Case: get - non-existing key\n")
