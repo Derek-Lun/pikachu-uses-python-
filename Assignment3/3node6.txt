@@ -1,3 +1,3 @@
 planetlab1.tlm.unavarra.es
 planetlab1.upc.es
-planetlab3.upc.es
+planetlab2.upc.es
