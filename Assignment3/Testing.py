@@ -105,6 +105,10 @@ def runTestCases(server_address,file_object):
     except AssertionError:
         file_object.write("\nFailed\n\n")
         print "\nFailed\n"    
+    except TypeError:
+        file_object.write("\nConnection Problem.\n")
+        file_object.write("Failed\n\n")
+        print "\nFailed\n"
     # Put - key with the maximum length
     try:
         file_object.write("Test Case: put - key with the maximum length\n")
@@ -161,9 +165,7 @@ def runTestCases(server_address,file_object):
         print "Test Case: put without overwrite - success case"
         data = sendRequest(assembleMessage(3,"4"), server_address)
         if data:
-          data = sendRequest(assembleMessage(32,"4","ab&"), server_address,file_object)
-          res_code,payload = parsePayload(data)
-          assert res_code == 0
+          sendRequest(assembleMessage(32,"4","ab&"), server_address,file_object)
           data = sendRequest(assembleMessage(2,"4"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "ab&"
