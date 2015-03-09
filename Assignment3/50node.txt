@@ -4,7 +4,7 @@ pl1.tailab.eu
 pl-node-1.csl.sri.com
 onelab3.info.ucl.ac.be
 planetlab1.xeno.cl.cam.ac.uk
-planetlab2.tamu.edu
+planetlab1.tsuniv.edu
 pl2.tailab.eu
 planetlab-03.cs.princeton.edu
 planetlab-coffee.ait.ie
