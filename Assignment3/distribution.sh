@@ -12,5 +12,5 @@ do
     # scp -i ~/.ssh/id_rsa dist/UDPServer_withData/* ubc_eece411_5@${node}:Group10/.
     # scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "chmod +x ~/Group10/UDPServer_withData; echo '*/5 * * * * ~/Group10/UDPServer_withData' | sudo crontab; ~/Group10/UDPServer &"
-    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '*/5 * * * * sh make-run.sh' | crontab"
+    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "nohup ~/Group10/UDPServer &"
 done

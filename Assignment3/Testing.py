@@ -64,6 +64,10 @@ def runTestCases(server_address,file_object):
     except AssertionError:
         file_object.write("\nFailed\n\n")
         print "\nFailed\n"   
+    except TypeError:
+        file_object.write("\nConnection Problem.\n")
+        file_object.write("Failed\n\n")
+        print "\nFailed\n"
     # Put - empty value
     try:
         file_object.write("Test Case: put - empty value\n")
