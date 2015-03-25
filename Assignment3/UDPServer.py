@@ -338,6 +338,19 @@ def check_status():
     print ring.ring.values()
     time.sleep(check_status_time)
 
+def reply_response():
+  global results_queue
+  while operating == True:
+    if not results_queue.empty():
+      result = results_queue.get()
+      if len(result) > 2:
+        reply = createReply(result[0], result[1], result[2])
+        sock.sendto(reply, result[0]['address'])
+        cacheMsg(rdata[0:16],reply)
+      else:
+        sock.sendto(result[0], result[1])
+        cacheMsg(result[0][0:16], result[0])
+
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -353,18 +366,11 @@ status_check = Thread(target=check_status)
 status_check.daemon =True
 status_check.start()
 
+status_check = Thread(target=reply_response)
+status_check.daemon =True
+status_check.start()
+
 while operating == True:
-
-  if not results_queue.empty():
-    result = results_queue.get()
-    if len(result) > 2:
-      reply = createReply(result[0], result[1], result[2])
-      sock.sendto(reply, result[0]['address'])
-      cacheMsg(rdata[0:16],reply)
-    else:
-      sock.sendto(result[0], result[1])
-      cacheMsg(result[0][0:16], result[0])
-
   try:
     rdata, address = sock.recvfrom(16384)
     func = None
