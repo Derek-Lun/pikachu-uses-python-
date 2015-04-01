@@ -21,8 +21,9 @@ forwarded_request = {}
 check_status_time = 43
 
 server_address = ("", 7790)
-node = Node(socket.gethostbyname(socket.gethostname()),server_address[1])
-ring = Ring(node.address(), server_address[1])
+server_port = 7790
+node = Node(socket.gethostbyname(socket.gethostname()),server_port)
+ring = Ring(node.address(), server_port)
 
 
 response_status = {
@@ -76,7 +77,7 @@ def add_node(request):
         print "And it comes to a full circle"
         data = "self"
         break;
-      successor = (server_list[index],server_address[1]);
+      successor = (server_list[index],server_port);
       if socket.gethostbyname(successor[0]) != node_add:
         message = assembleMessage(34, None, node_add)
         sendRequest(message,successor,None,1)
@@ -120,7 +121,7 @@ def remove_node(request):
         print "And it comes to a full circle"
         break;
     if predecessor != self:
-      predecessor = (socket.gethostbyname(predecessor), server_address[1])
+      predecessor = (socket.gethostbyname(predecessor), server_port)
       message = assembleMessage(38, None, delete_node)
       data = sendRequest(message,predecessor,None,1)
 
@@ -156,7 +157,7 @@ def transfer_keys(node_add):
     position = ring.get_node_position(request[k])[0]
     if position == new_node:
       message=assembleMessage(1,k,node.data[k])
-      sendRequest(message,(position,server_address[1]),None,1)
+      sendRequest(message,(position,server_port),None,1)
 
 command = {
   1 : node.put,
@@ -235,7 +236,7 @@ def createReply (request,status, value = None):
 def createForward (rdata, request):
   global forwarded_request
   global server_address
-  forward = requestID(server_address[1])
+  forward = requestID(server_port)
 
   forwarded_request[str(forward)] = request['address']
 
@@ -269,7 +270,7 @@ def routeMessage(rdata, request):
     position = ring.get_node_position(request['key'])[0]
     if position != ring.node:
       current = False
-      address = (position, server_address[1])
+      address = (position, server_port)
       forward = createForward(rdata, request)
       sock.sendto(forward, address)
 
@@ -311,7 +312,7 @@ def checkSuccessor(string = None):
               print "And it comes to a full circle"
               break;
           if predecessor_index != self:
-            predecessor = (predecessor_ip, server_address[1])
+            predecessor = (predecessor_ip, server_port)
             message = assembleMessage(38, None, dest_ip)
             d = sendRequest(message,predecessor,None,1)
 
@@ -325,7 +326,7 @@ def checkSuccessor(string = None):
       print "And it comes to a full circle"
       data = "self"
       break;
-    successor = (server_list[index],server_address[1]);
+    successor = (server_list[index],server_port);
     message = assembleMessage(command, None,node_ip)
     data = sendRequest(message,successor,None,1)
   print time.ctime()
@@ -358,7 +359,7 @@ sock.bind(server_address)
 sock.setblocking(0)
 operating = True
 
-print "Listening on %s" % server_address[1]
+print "Listening on %s" % server_port
 
 checkSuccessor("init")
 

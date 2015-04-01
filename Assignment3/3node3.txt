@@ -1,3 +1,0 @@
-planetlab1.csg.uzh.ch
-icnalplabs2.epfl.ch
-icnalplabs1.epfl.ch
