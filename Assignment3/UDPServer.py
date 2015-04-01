@@ -1,4 +1,3 @@
-
 import socket
 import struct
 import random
@@ -356,7 +355,6 @@ def reply_response():
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 sock.bind(server_address)
-sock.setblocking(0)
 operating = True
 
 print "Listening on %s" % server_port
