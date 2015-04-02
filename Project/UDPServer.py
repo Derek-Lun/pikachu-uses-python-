@@ -70,7 +70,7 @@ def pass_to_nearest_alive_node(message, successor):
     if successor:
       index = (index + 1) % len(server_list)
     else:
-      index = (index + 1) % len(server_list)
+      index = (index - 1) % len(server_list)
     if index == current_host_index:
       break;
 
