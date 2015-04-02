@@ -9,8 +9,10 @@ from threading import Thread
 from node import *
 from ring import *
 from communication import *
+import sys
 
 PASS_ON_VALUE = 2
+NUM_TRIES = 1
 
 server_list = [line.strip() for line in open('node.txt')]
 
@@ -19,11 +21,11 @@ cache_request = {}
 forwarded_request = {}
 check_status_time = 43
 
-server_address = ("", 7790)
-server_port = 7790
-node = Node(socket.gethostbyname(socket.gethostname()),server_port)
-ring = Ring(node.address(), server_port)
+value_op = {1,2,3,32}
+membership_op = {4,33,34,35,36,37,38}
 
+server_port = 7790
+ring = Ring(Node(socket.gethostbyname(socket.gethostname()),server_port), server_port)
 
 response_status = {
   'success': 0,
@@ -53,80 +55,76 @@ def no_operation(request):
   global results_queue
   results_queue.put((request, 'do_not_recognize', None))
 
+
+def pass_to_nearest_alive_node(message, successor):
+  current_host_name = socket.getfqdn()
+
+  if current_host_name in server_list:
+    current_host_index = server_list.index(current_host_name)
+
+  reply = None;
+
+  index = current_host_index;
+
+  while not reply:
+    if successor:
+      index = (index + 1) % len(server_list)
+    else:
+      index = (index + 1) % len(server_list)
+    if index == current_host_index:
+      break;
+
+    next = (server_list[index], server_port);
+
+    reply = sendRequest(message,next,None,NUM_TRIES);
+
+  return reply
+
+
 def add_node(request):
   global ring
-  global node
 
   node_add = request['payload']
+  ring.add_node(request['address'][0])
 
   data = None
   local_host_name = socket.getfqdn()
 
-  if node.host != node_add:
-    try:
-      index = server_list.index(local_host_name)
-    except:
-      index = -1
+  if ring.node.host != node_add:
 
-    self = index
+    message = assembleMessage(34, None, node_add)
+    reply = pass_to_nearest_alive_node(message, True)
 
-    while not data and not (node_add in ring.ring.values()):
-      index = (index + 1) % len(server_list)
-      if index == self:
-        print "And it comes to a full circle"
-        data = "self"
-        break;
-      successor = (server_list[index],server_port);
-      if socket.gethostbyname(successor[0]) != node_add:
-        message = assembleMessage(34, None, node_add)
-        sendRequest(message,successor,None,1)
+    ring.add_node(node_add)
 
     if request['address'][0] == node_add:
-      ring.add_node(node_add)
-      ring.add_node(request['address'][0])
       request['address'] = list(request['address'])
-      request['address'][1] = node.port
+      request['address'][1] = server_port
       request['address'] = tuple(request['address'])
       ring_list = ','.join(map(str, ring.ring.values()))
       results_queue.put((request, 'update_ring', ring_list))
     else:
       results_queue.put((request, 'success', None))
 
-
     transfer_keys(node_add)
 
 def remove_node(request):
   global ring
-  global node
 
   delete_node = request['payload']
   ring.add_node(request['address'][0])
 
-  if node.host != delete_node and (delete_node in ring.ring.values()):
-    data = None
-    local_host_name = socket.getfqdn()
-    try:
-      index = server_list.index(local_host_name)
-    except:
-      index = -1
-
-    self = index
-
-    predecessor = index - 1;
-
-    while not server_list[predecessor] in ring.ring.values() :
-      predecessor = (predecessor - 1) % len(server_list)
-      if predecessor == self:
-        print "And it comes to a full circle"
-        break;
-    if predecessor != self:
-      predecessor = (socket.gethostbyname(predecessor), server_port)
-      message = assembleMessage(38, None, delete_node)
-      data = sendRequest(message,predecessor,None,1)
-
+  if ring.node.host != delete_node and (delete_node in ring.ring.values()):
     ring.remove_node(delete_node)
 
-def forwarded(request):
+    results_queue.put((request, 'success', None))
+
+    message = assembleMessage(38, None, delete_node)
+
+    reply = pass_to_nearest_alive_node(message, False)
+   
+
+def forwarded_request(request):
   global results_queue
   global ring
   payload = request['payload']
@@ -152,36 +150,39 @@ def update_ring(request):
 
 def transfer_keys(node_add):
   new_node = ring.hash_key(node_add)
-  for k in node.data.keys():
+  for k in ring.node.data.keys():
     position = ring.get_node_position(request[k])[0]
     if position == new_node:
-      message=assembleMessage(1,k,node.data[k])
+      message=assembleMessage(1,k,ring.node.data[k])
       sendRequest(message,(position,server_port),None,1)
 
+def report_alive(request):
+  results_queue.put((request,'alive', None))
+
 command = {
-  1 : node.put,
-  2 : node.get,
-  3 : node.remove,
+  1 : ring.node.put,
+  2 : ring.node.get,
+  3 : ring.node.remove,
   4 : shutdown,
-  32 : node.put_no_overwrite,
-  33 : node.report_alive,
+  32 : ring.node.put_no_overwrite,
+  33 : report_alive,
   34 : add_node,
-  35 : forwarded,
+  35 : forwarded_request,
   36 : pass_on_reply,
   37 : update_ring,
   38 : remove_node
 }
 
-def node_operation (request):
+def operation (request):
   global results_queue
-  if request['command'] in {1,2,3,32,33}:
+  if request['command'] in value_op:
     try:
       status, value = command[request['command']](request['key'], request['value'])
     except:
       status, value = "internal_failure", None
 
     results_queue.put((request, status, value))
-  elif request['command'] in {4,34,35,36,37,38}:
+  elif request['command'] in membership_op:
     command[request['command']](request)
   else:
       no_operation(request)
@@ -232,22 +233,6 @@ def createReply (request,status, value = None):
 
   return reply_str
 
-def createForward (rdata, request):
-  global forwarded_request
-  global server_address
-  forward = requestID(server_port)
-
-  forwarded_request[str(forward)] = request['address']
-
-  forward.append(struct.pack('<b',response_status['forwarded']))
-  forward.extend(struct.pack('<h', len(rdata)))
-  forward.extend(rdata)
-
-  forward_str = "";
-  for x in forward:
-    forward_str = forward_str + struct.pack('<B', x)
-
-  return forward_str
 
 def cacheMsg(id,reply = None):
   if reply:
@@ -263,76 +248,64 @@ def removeCache(id):
     #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
 
-def routeMessage(rdata, request):
-  current = True
-  if request['command'] in {1,2,3,32}:
-    position = ring.get_node_position(request['key'])[0]
-    if position != ring.node:
-      current = False
-      address = (position, server_port)
-      forward = createForward(rdata, request)
-      sock.sendto(forward, address)
+def package_forward (raw_data, request):
+  global forwarded_request
+  forward = requestID(server_port)
 
-  if current:
-    task = Thread(target=node_operation, args=(request,))
+  forwarded_request[str(forward)] = request['address']
+
+  forward.append(struct.pack('<b',response_status['forwarded']))
+  forward.extend(struct.pack('<h', len(rdata)))
+  forward.extend(rdata)
+
+  forward_str = "";
+  for x in forward:
+    forward_str = forward_str + struct.pack('<B', x)
+
+  return forward_str
+
+def routeMessage(raw_data, request):
+  is_target = True
+  if request['command'] in value_op:
+    target_node = ring.get_node(request['key'])
+    if target_node != ring.node:
+      is_target = False
+      address = (position, server_port)
+      forward_package = package_forward(raw_data, request)
+      sock.sendto(forward_package, address)
+
+  if is_target:
+    task = Thread(target=operation, args=(request,))
     task.start()
     task.join()
 
-def checkSuccessor(string = None):
-  global node
-  global check_status_time
+def checkSuccessor():
   global ring
 
-  data = None
   local_host_name = socket.getfqdn()
-  try:
-    index = server_list.index(local_host_name)
-  except:
-    index = -1
+  current_host_index = server_list.index(local_host_name)
 
-  self = index
+  message = assembleMessage(33)
+  reply, address = pass_to_nearest_alive_node(message, True)
 
-  while not data:
-    command = 34
-    node_ip = node.host
-    if string != "init":
-      command = 33
-      node_ip =  None
+  next_alive_index = server_list.index(socket.getfqdn(address[0]))
 
-      try:
-        if index != self:
-          predecessor_index = self - 1
-          predecessor_ip = socket.gethostbyname(server_list[predecessor_index])
-          dest_ip = socket.gethostbyname(server_list[index])
-          while not (predecessor_ip in ring.ring.values()):
-            predecessor_index = (predecessor_index - 1) % len(server_list)
-            predecessor_ip = socket.gethostbyname(server_list[predecessor_index])
-            if predecessor_index == self:
-              print "And it comes to a full circle"
-              break;
-          if predecessor_index != self:
-            predecessor = (predecessor_ip, server_port)
-            message = assembleMessage(38, None, dest_ip)
-            d = sendRequest(message,predecessor,None,1)
+  for index in range(current_host_index+1, next_alive_index):
+    dest_ip = socket.gethostbyname(server_list[i])
+    msg = assembleMessage(38, None, dest_ip)
+    ring.remove_node(dest_ip)
+    rply = pass_to_nearest_alive_node(msg, False)
 
-          if dest_ip in ring.ring.values():
-            print "Remove from ring: " + dest_ip
-            ring.remove_node(dest_ip)
-      except:
-        pass
-    index = (index + 1) % len(server_list)
-    if index == self:
-      print "And it comes to a full circle"
-      data = "self"
-      break;
-    successor = (server_list[index],server_port);
-    message = assembleMessage(command, None,node_ip)
-    data = sendRequest(message,successor,None,1)
-  print time.ctime()
+
+def initialize():
+  global ring
+
+  message = assembleMessage(34, None, ring.node.host)
+  pass_to_nearest_alive_node(message, True)
 
 def check_status():
+  global check_status_time
   global operating
-  global ring
   while operating == True:
     checkSuccessor()
     time.sleep(check_status_time)
@@ -353,12 +326,13 @@ def reply_response():
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+server_address = ("", 7790)
 sock.bind(server_address)
 operating = True
 
 print "Listening on %s" % server_port
 
-checkSuccessor("init")
+initialize()
 
 status_check = Thread(target=check_status)
 status_check.daemon =True
@@ -387,3 +361,5 @@ while operating == True:
   except socket.error:
     #print "Socket closed"
     pass
+
+sys.exit()
