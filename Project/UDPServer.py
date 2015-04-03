@@ -86,6 +86,7 @@ def add_node(request):
   global ring
 
   node_add = request['payload']
+  
   ring.add_node(request['address'][0])
 
   data = None
@@ -143,7 +144,7 @@ def pass_on_reply(request):
   global results_queue
 
   payload = request['payload']
-  
+
   results_queue.put((payload, forwarded_req_address[str(request['header'])]))
 
 def update_ring(request):
@@ -295,6 +296,8 @@ def checkSuccessor():
 
   if reply:
     next_alive_index = server_list.index(socket.getfqdn(address[0]))
+
+    ring.add_node(address[0]);
 
     transverse_index = next_alive_index - current_host_index;
 

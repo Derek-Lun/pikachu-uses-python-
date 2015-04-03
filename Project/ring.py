@@ -18,6 +18,7 @@ class Ring(object):
     self.ring[key] = node
     self.sorted_keys.append(key)
 
+    print len(self.sorted_keys)
     self.sorted_keys.sort()
 
   def remove_node(self, node):
@@ -63,6 +64,8 @@ class Ring(object):
 
     for x in range(replica):
       i = (index + x) % len(self.sorted_keys);
+      print i
+      print len(self.sorted_keys)
       node = self.sorted_keys[i]
       node_placement.append(self.ring[node])
 
