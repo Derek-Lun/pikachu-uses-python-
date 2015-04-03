@@ -145,7 +145,8 @@ def pass_on_reply(request):
 
   payload = request['payload']
 
-  results_queue.put((payload, forwarded_req_address[str(request['header'])]))
+  if forwarded_req_address[str(request['header'])]:
+    results_queue.put((payload, forwarded_req_address[str(request['header'])]))
 
 def update_ring(request):
   ring_list = request['payload'].split(',')
@@ -267,7 +268,7 @@ def package_forward (raw_data, request, target_nodes, local):
     forward_str = forward_str + struct.pack('<B', x)
 
   for t in target_nodes:
-    address = (target_nodes[t], server_port)
+    address = (t, server_port)
     sock.sendto(forward_str, address)
 
 
@@ -279,11 +280,12 @@ def routeMessage(raw_data, request):
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
       local = True
-      task = Thread(target=operation, args=(request,))
-      task.start()
-      task.join()
 
     package_forward(raw_data, request, target_nodes, local)
+
+  task = Thread(target=operation, args=(request,))
+  task.start()
+  task.join()
 
 def checkSuccessor():
   global ring
@@ -327,9 +329,9 @@ def initialize():
 def check_status():
   global check_status_time
   global operating
-  while operating == True:
-    checkSuccessor()
+  while operating == True:    
     time.sleep(check_status_time)
+    checkSuccessor()
 
 def reply_response():
   global results_queue
