@@ -145,7 +145,7 @@ def pass_on_reply(request):
 
   payload = request['payload']
 
-  if forwarded_req_address[str(request['header'])]:
+  if str(request['header']) in forwarded_req_address:
     results_queue.put((payload, forwarded_req_address[str(request['header'])]))
 
 def update_ring(request):
@@ -155,10 +155,14 @@ def update_ring(request):
 def transfer_keys(node_add):
   new_node = ring.hash_key(node_add)
   for k in ring.node.data.keys():
-    position = ring.get_node_position(request[k])[0]
-    if position == new_node:
+    print k
+    position = ring.get_node_with_replica(k)
+    print position
+    if new_node in position:
       message=assembleMessage(1,k,ring.node.data[k])
-      sendRequest(message,(position,server_port),None,1)
+      sendRequest(message,(new_node,server_port),None,1)
+    if not ring.node.host in position:
+      ring.node.remove(k)
 
 def report_alive(request):
   results_queue.put((request,'alive', None))

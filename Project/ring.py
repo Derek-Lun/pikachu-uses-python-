@@ -63,15 +63,12 @@ class Ring(object):
 
     node_placement = []
 
-    if len(self.sorted_keys) <= 3:
-      return self.ring
-    else:
-      for x in range(replica):
-        i = (index + x) % len(self.sorted_keys)
-        node = self.sorted_keys[i]
-        node_placement.append(self.ring[node])
+    for x in range(min(replica,len(self.sorted_keys))):
+      i = (index + x) % len(self.sorted_keys)
+      node = self.sorted_keys[i]
+      node_placement.append(self.ring[node])
 
-      return node_placement
+    return node_placement
 
   def hash_key(self, key_string):
     m =  hashlib.md5(key_string).hexdigest()
