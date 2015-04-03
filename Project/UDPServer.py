@@ -251,11 +251,12 @@ def removeCache(id):
     #print "Removing cache with id: " + binascii.hexlify(id)
     cache_request.pop(id, None)
 
-def package_forward (raw_data, request, target_nodes):
+def package_forward (raw_data, request, target_nodes, local):
   global forwarded_req_address
   forward = requestID(server_port)
 
-  forwarded_req_address[str(forward)] = request['address']
+  if not local:
+    forwarded_req_address[str(forward)] = request['address']
 
   forward.append(struct.pack('<b',response_status['forwarded']))
   forward.extend(struct.pack('<h', len(rdata)))
@@ -267,20 +268,22 @@ def package_forward (raw_data, request, target_nodes):
 
   for t in target_nodes:
     address = (target_nodes[t], server_port)
-    sock.sendto(forward_package, address)
+    sock.sendto(forward_str, address)
 
 
 def routeMessage(raw_data, request):
+  local = False
   if request['command'] in value_op:
     target_nodes = ring.get_node_with_replica(request['key'])
 
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
+      local = True
       task = Thread(target=operation, args=(request,))
       task.start()
       task.join()
 
-    package_forward(raw_data, request, target_nodes)
+    package_forward(raw_data, request, target_nodes, local)
 
 def checkSuccessor():
   global ring
