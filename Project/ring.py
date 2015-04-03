@@ -11,7 +11,7 @@ class Ring(object):
     self.node = node
     self.server_port = port
 
-    self.add_node(node)
+    self.add_node(node.host)
 
   def add_node(self, node):
     key = self.hash_key(node)
@@ -21,14 +21,21 @@ class Ring(object):
     self.sorted_keys.sort()
 
   def remove_node(self, node):
-    key = self.hash_key(node)
-    del self.ring[key]
-    self.sorted_keys.remove(key)
+    if node in self.ring.values():
+      key = self.hash_key(node)
+      del self.ring[key]
+      self.sorted_keys.remove(key)
 
   def update_ring(self, nodes):
     del self.sorted_keys[:]
     for n in nodes:
       self.add_node(n)
+
+  def clear_ring(self):
+    self.ring.clear()
+    del self.sorted_keys[:]
+
+    self.add_node(self.node.host)
 
   def get_node(self, key_string):
     return self.get_node_position(string_key)[0]

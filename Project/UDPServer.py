@@ -71,14 +71,15 @@ def pass_to_nearest_alive_node(message, successor):
       index = (index + 1) % len(server_list)
     else:
       index = (index - 1) % len(server_list)
+
     if index == current_host_index:
       break;
 
     next = (server_list[index], server_port);
 
-    reply = sendRequest(message,next,None,NUM_TRIES);
+    reply, address = sendRequest(message,next,None,NUM_TRIES);
 
-  return reply
+  return reply, address
 
 
 def add_node(request):
@@ -288,13 +289,26 @@ def checkSuccessor():
   message = assembleMessage(33)
   reply, address = pass_to_nearest_alive_node(message, True)
 
-  next_alive_index = server_list.index(socket.getfqdn(address[0]))
+  if reply:
+    next_alive_index = server_list.index(socket.getfqdn(address[0]))
 
-  for index in range(current_host_index+1, next_alive_index):
-    dest_ip = socket.gethostbyname(server_list[i])
-    msg = assembleMessage(38, None, dest_ip)
-    ring.remove_node(dest_ip)
-    rply = pass_to_nearest_alive_node(msg, False)
+    transverse_index = next_alive_index - current_host_index;
+
+    if transverse_index < 0:
+      number_of_successive_nodes_dead = len(server_list) + transverse_index;
+    else:
+      number_of_successive_nodes_dead = transverse_index
+
+    for index in range(1, number_of_successive_nodes_dead):
+      delete_host = server_list[current_host_index+index];
+      dest_ip = socket.gethostbyname(delete_host)
+      msg = assembleMessage(38, None, dest_ip)
+      ring.remove_node(dest_ip)
+      rply = pass_to_nearest_alive_node(msg, False)
+  else:
+    ring.clear_ring()
+
+  print ring.ring.values()
 
 
 def initialize():
