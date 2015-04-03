@@ -16,9 +16,10 @@ class Ring(object):
   def add_node(self, node):
     key = self.hash_key(node)
     self.ring[key] = node
-    self.sorted_keys.append(key)
 
-    print len(self.sorted_keys)
+    if not key in self.sorted_keys:
+      self.sorted_keys.append(key)
+
     self.sorted_keys.sort()
 
   def remove_node(self, node):
@@ -72,6 +73,7 @@ class Ring(object):
     return node_placement
 
   def hash_key(self, key_string):
-    m =  hashlib.sha224(key_string).hexdigest()
+    m =  hashlib.md5(key_string).hexdigest()
+
     return long(m, 16)
 

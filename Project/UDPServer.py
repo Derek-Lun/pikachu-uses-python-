@@ -270,13 +270,11 @@ def package_forward (raw_data, request):
 def routeMessage(raw_data, request):
   is_target = True
   if request['command'] in value_op:
-    target_node = ring.get_node(request['key'])
-    print target_node
     target_nodes = ring.get_node_with_replica(request['key'])
-    print target_nodes
-    if target_node != ring.node:
+    
+    if not ring.node.host in target_nodes:
       is_target = False
-      address = (target_node, server_port)
+      address = (target_nodes[0], server_port)
       forward_package = package_forward(raw_data, request)
       sock.sendto(forward_package, address)
 
