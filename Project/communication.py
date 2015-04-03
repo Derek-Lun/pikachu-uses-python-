@@ -50,6 +50,7 @@ def parseID (original, received):
 
 def parsePayload (received):
   r = list(received)
+
   for i in range(0, 16):
     r.pop(0)
   res_code = ord(r[0])

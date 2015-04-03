@@ -38,14 +38,13 @@ class Ring(object):
     self.add_node(self.node.host)
 
   def get_node(self, key_string):
-    return self.get_node_position(string_key)[0]
+    return self.get_node_position(key_string)[0]
 
   def get_node_position(self, key_string):
     if not self.ring:
       return None, None
 
     key = self.hash_key(key_string)
-    print key
 
     nodes = self.sorted_keys
 
@@ -56,6 +55,18 @@ class Ring(object):
         return self.ring[node], x
 
     return self.ring[nodes[0]], 0
+
+  def get_node_with_replica(self, key_string, replica=3):
+    primary_node, index = self.get_node_position(key_string)
+
+    node_placement = []
+
+    for x in range(replica):
+      i = (index + x) % len(self.sorted_keys);
+      node = self.sorted_keys[i]
+      node_placement.append(self.ring[node])
+
+    return node_placement
 
   def hash_key(self, key_string):
     m =  hashlib.sha224(key_string).hexdigest()

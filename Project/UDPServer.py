@@ -18,7 +18,7 @@ server_list = [line.strip() for line in open('node.txt')]
 
 results_queue = Queue()
 cache_request = {}
-forwarded_request = {}
+forwarded_req_address = {}
 check_status_time = 43
 
 value_op = {1,2,3,32}
@@ -143,7 +143,8 @@ def pass_on_reply(request):
   global results_queue
 
   payload = request['payload']
-  results_queue.put((payload, forwarded_request[str(request['header'])]))
+  
+  results_queue.put((payload, forwarded_req_address[str(request['header'])]))
 
 def update_ring(request):
   ring_list = request['payload'].split(',')
@@ -250,10 +251,10 @@ def removeCache(id):
     cache_request.pop(id, None)
 
 def package_forward (raw_data, request):
-  global forwarded_request
+  global forwarded_req_address
   forward = requestID(server_port)
 
-  forwarded_request[str(forward)] = request['address']
+  forwarded_req_address[str(forward)] = request['address']
 
   forward.append(struct.pack('<b',response_status['forwarded']))
   forward.extend(struct.pack('<h', len(rdata)))
@@ -269,9 +270,12 @@ def routeMessage(raw_data, request):
   is_target = True
   if request['command'] in value_op:
     target_node = ring.get_node(request['key'])
+    print target_node
+    target_nodes = ring.get_node_with_replica(request['key'])
+    print target_nodes
     if target_node != ring.node:
       is_target = False
-      address = (position, server_port)
+      address = (target_node, server_port)
       forward_package = package_forward(raw_data, request)
       sock.sendto(forward_package, address)
 
@@ -300,8 +304,8 @@ def checkSuccessor():
       number_of_successive_nodes_dead = transverse_index
 
     for index in range(1, number_of_successive_nodes_dead):
-      delete_host = server_list[current_host_index+index];
-      dest_ip = socket.gethostbyname(delete_host)
+      i = (current_host_index+index) % len(server_list)
+      dest_ip = socket.gethostbyname(server_list[i])
       msg = assembleMessage(38, None, dest_ip)
       ring.remove_node(dest_ip)
       rply = pass_to_nearest_alive_node(msg, False)
