@@ -11,7 +11,7 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: Invalid Command\n")
         print "Test Case: Invalid Command"
-        data = sendRequest(assembleMessage(5,"0","123"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(5,"0","123"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 5
@@ -28,11 +28,11 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put - success case\n")
         print "Test Case: put - success case"
-        data = sendRequest(assembleMessage(1,"1","456"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(1,"1","456"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,"1",""), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,"1",""), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "456"
           file_object.write("\nPassed\n\n")
@@ -48,11 +48,11 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put - empty key\n")
         print "Test Case: put - empty key"
-        data = sendRequest(assembleMessage(1,"","/\\/\\/"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(1,"","/\\/\\/"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,""), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,""), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "/\\/\\/"
           file_object.write("\nPassed\n\n")
@@ -72,11 +72,11 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put - empty value\n")
         print "Test Case: put - empty value"
-        data = sendRequest(assembleMessage(1,"P.;",""), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(1,"P.;",""), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,"P.;"), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,"P.;"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == ""
           file_object.write("\nPassed\n\n")
@@ -92,12 +92,12 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put - existing key\n")
         print "Test Case: put - existing key"
-        data = sendRequest(assembleMessage(1,"1","123"), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(1,"1","123"), server_address)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
           sendRequest(assembleMessage(1,"1","{}'"), server_address,file_object)
-          data = sendRequest(assembleMessage(2,"1"), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,"1"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "{}'"
           file_object.write("\nPassed\n\n")
@@ -121,11 +121,11 @@ def runTestCases(server_address,file_object):
         for i in range(0,32):
             key += '1'
         #print "Key to be sent: " + key
-        data = sendRequest(assembleMessage(1,key,":lX"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(1,key,":lX"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,key), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,key), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == ":lX"
           file_object.write("\nPassed\n\n")
@@ -146,11 +146,11 @@ def runTestCases(server_address,file_object):
 #             value += '2'
 #         #print "Value to be sent: " + value
 #         print "length:"+str(len(value))
-#         data = sendRequest(assembleMessage(1,'111',value), server_address,file_object)
+#         data,address,turnAroundTime = sendRequest(assembleMessage(1,'111',value), server_address,file_object)
 #         if data:
 #           res_code,payload = parsePayload(data)
 #           assert res_code == 0
-#           data = sendRequest(assembleMessage(2,'111'), server_address)
+#           data,address,turnAroundTime = sendRequest(assembleMessage(2,'111'), server_address)
 #           res_code,payload = parsePayload(data)
 #           assert ''.join(payload) == value
 #           file_object.write("\nPassed\n\n")
@@ -167,10 +167,10 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put without overwrite - success case\n")
         print "Test Case: put without overwrite - success case"
-        data = sendRequest(assembleMessage(3,"4"), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,"4"), server_address)
         if data:
           sendRequest(assembleMessage(32,"4","ab&"), server_address,file_object)
-          data = sendRequest(assembleMessage(2,"4"), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,"4"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "ab&"
           file_object.write("\nPassed\n\n")
@@ -186,12 +186,12 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put without overwrite - empty key\n")
         print "Test Case: put without overwrite - empty key"
-        data = sendRequest(assembleMessage(3,""), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,""), server_address)
         if data:
-          data = sendRequest(assembleMessage(32,"","..."), server_address,file_object)
+          data,address,turnAroundTime = sendRequest(assembleMessage(32,"","..."), server_address,file_object)
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,""), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,""), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "..."
           file_object.write("\nPassed\n\n")
@@ -207,12 +207,12 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put without overwrite - empty value\n")
         print "Test Case: put without overwrite - empty value"
-        data = sendRequest(assembleMessage(3,"^"), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,"^"), server_address)
         if data:
-          data = sendRequest(assembleMessage(32,"^",""), server_address,file_object)
+          data,address,turnAroundTime = sendRequest(assembleMessage(32,"^",""), server_address,file_object)
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,"^"), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,"^"), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == ""
           file_object.write("\nPassed\n\n")
@@ -228,12 +228,12 @@ def runTestCases(server_address,file_object):
     try:
         file_object.write("Test Case: put without overwrite - existing key\n")
         print "Test Case: put without overwrite - existing key"
-        data = sendRequest(assembleMessage(3,"0"), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,"0"), server_address)
         if data:
-          data = sendRequest(assembleMessage(1,"0","4oop"), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(1,"0","4oop"), server_address)
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(32,"0","xp*"), server_address,file_object)
+          data,address,turnAroundTime = sendRequest(assembleMessage(32,"0","xp*"), server_address,file_object)
           res_code,payload = parsePayload(data)
           assert res_code == 32
           file_object.write("\nPassed\n\n")
@@ -253,12 +253,12 @@ def runTestCases(server_address,file_object):
         for i in range(0,32):
             key += '3'
         #print "Key to be sent: " + key
-        data = sendRequest(assembleMessage(3,key), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,key), server_address)
         if data:
-          data = sendRequest(assembleMessage(1,key,"ppp"), server_address,file_object)
+          data,address,turnAroundTime = sendRequest(assembleMessage(1,key,"ppp"), server_address,file_object)
           res_code,payload = parsePayload(data)
           assert res_code == 0
-          data = sendRequest(assembleMessage(2,key), server_address)
+          data,address,turnAroundTime = sendRequest(assembleMessage(2,key), server_address)
           res_code,payload = parsePayload(data)
           assert ''.join(payload) == "ppp"
           file_object.write("\nPassed\n\n")
@@ -278,12 +278,12 @@ def runTestCases(server_address,file_object):
 #         for i in range(0,15000):
 #             value += '4'
 #         #print "Value to be sent: " + value
-#         data = sendRequest(assembleMessage(3,'\'M\fsdfdsfsdfdasfasff'), server_address)
+#         data,address,turnAroundTime = sendRequest(assembleMessage(3,'\'M\fsdfdsfsdfdasfasff'), server_address)
 #         if data:
-#           data = sendRequest(assembleMessage(32,'\'M\fsdfdsfsdfdasfasff',value), server_address,file_object)
+#           data,address,turnAroundTime = sendRequest(assembleMessage(32,'\'M\fsdfdsfsdfdasfasff',value), server_address,file_object)
 #           res_code,payload = parsePayload(data)
 #           assert res_code == 0
-#           data = sendRequest(assembleMessage(2,'\'M\fsdfdsfsdfdasfasff'), server_address)
+#           data,address,turnAroundTime = sendRequest(assembleMessage(2,'\'M\fsdfdsfsdfdasfasff'), server_address)
 #           res_code,payload = parsePayload(data)
 #           assert ''.join(payload) == value
 #           file_object.write("\nPassed\n\n")
@@ -300,7 +300,7 @@ def runTestCases(server_address,file_object):
         file_object.write("Test Case: get - non-existing key\n")
         print "Test Case: get - non-existing key"
         sendRequest(assembleMessage(3,'f[pkpaksf\''), server_address)
-        data = sendRequest(assembleMessage(2,"f[pkpaksf\'"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(2,"f[pkpaksf\'"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 1
@@ -319,7 +319,7 @@ def runTestCases(server_address,file_object):
         print "Test Case: remove - success case"
         sendRequest(assembleMessage(1,'f[',"abc"), server_address)
         sendRequest(assembleMessage(3,"f["), server_address,file_object)
-        data = sendRequest(assembleMessage(2,"f["), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(2,"f["), server_address)
         if data:
           res_code,payload = parsePayload(data)
           print res_code
@@ -339,7 +339,7 @@ def runTestCases(server_address,file_object):
         file_object.write("Test Case: remove - non-existing (key,value)\n")
         print "Test Case: remove - non-existing (key,value)"
         sendRequest(assembleMessage(3,'f++'), server_address)
-        data = sendRequest(assembleMessage(3,"f++"), server_address,file_object)
+        data,address,turnAroundTime = sendRequest(assembleMessage(3,"f++"), server_address,file_object)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 1
@@ -362,7 +362,7 @@ def runTestCases(server_address,file_object):
         #print "Key to be sent: " + key
         sendRequest(assembleMessage(1,key,":"), server_address)
         sendRequest(assembleMessage(3,key), server_address,file_object)
-        data = sendRequest(assembleMessage(2,key), server_address)
+        data,address,turnAroundTime = sendRequest(assembleMessage(2,key), server_address)
         if data:
           res_code,payload = parsePayload(data)
           assert res_code == 1
@@ -383,10 +383,10 @@ def runTestCases(server_address,file_object):
              key = ""
     
              #print "Key to be sent: " + key
-             data = sendRequest(assembleMessage(1,"max",";;"), server_address)
+             data,address,turnAroundTime = sendRequest(assembleMessage(1,"max",";;"), server_address)
              if data:
                sendRequest(assembleMessage(1,"max2",";;"), server_address)
-               data = sendRequest(assembleMessage(1,"max3",";;"), server_address,file_object)
+               data,address,turnAroundTime = sendRequest(assembleMessage(1,"max3",";;"), server_address,file_object)
                res_code,payload = parsePayload(data)
                assert res_code == 2
                file_object.write("\nPassed\n\n")
@@ -403,12 +403,12 @@ def runTestCases(server_address,file_object):
     try:
          file_object.write("shutdown - success case\n")
          print "shutdown - success case"
-         data = sendRequest(assembleMessage(4), server_address)
+         data,address,turnAroundTime = sendRequest(assembleMessage(4), server_address)
          if data:
             assert False
          else:
              print "No response received."
-             data = sendRequest(assembleMessage(1,"max2223",",,,"), server_address)
+             data,address,turnAroundTime = sendRequest(assembleMessage(1,"max2223",",,,"), server_address)
              if data:
                assert False
              else:
