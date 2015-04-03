@@ -45,3 +45,12 @@ class Node(object):
 
   def report_alive(self,key=None, value=None):
     return 'alive', None
+
+  '''
+  auxilary function
+  '''
+  def key_exist(self, key):
+    if key in self.data:
+      return True
+    else:
+      return False

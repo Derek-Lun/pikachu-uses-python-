@@ -155,9 +155,7 @@ def update_ring(request):
 def transfer_keys(node_add):
   new_node = ring.hash_key(node_add)
   for k in ring.node.data.keys():
-    print k
     position = ring.get_node_with_replica(k)
-    print position
     if new_node in position:
       message=assembleMessage(1,k,ring.node.data[k])
       sendRequest(message,(new_node,server_port),None,1)
@@ -284,12 +282,15 @@ def routeMessage(raw_data, request):
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
       local = True
+      if (request['command'] == 2) and not ring.node.key_exist(request['key']):
+        local = False
 
     package_forward(raw_data, request, target_nodes, local)
 
-  task = Thread(target=operation, args=(request,))
-  task.start()
-  task.join()
+  if (request['command'] in membership_op) or local:
+    task = Thread(target=operation, args=(request,))
+    task.start()
+    task.join()
 
 def checkSuccessor():
   global ring
