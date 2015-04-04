@@ -287,7 +287,7 @@ def routeMessage(raw_data, request):
 
     package_forward(raw_data, request, target_nodes, local)
 
-  if (request['command'] in membership_op) or local:
+  if (request['command'] not in value_op) or local:
     task = Thread(target=operation, args=(request,))
     task.start()
     task.join()
