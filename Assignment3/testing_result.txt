@@ -1,5 +1,5 @@
 ===============Integrity and Performance Testing===============
-Time:2015-03-09 20:01:47
+Time:2015-04-04 14:40:00
 Testing on planetlab1.cs.ubc.ca
 Test Case: Invalid Command
 No response received.
@@ -7,3 +7,86 @@ No response received.
 Failed
 
 Test Case: put - success case
+Turnaround Time: 23.0 ms
+
+
+Passed
+
+Test Case: put - empty key
+Turnaround Time: 30.0 ms
+
+
+Passed
+
+Test Case: put - empty value
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put - existing key
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put - key with the maximum length
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - success case
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - empty key
+Turnaround Time: 20.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - empty value
+Turnaround Time: 27.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - existing key
+Turnaround Time: 20.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - key with the maximum length
+Turnaround Time: 17.0 ms
+
+
+Passed
+
+Test Case: get - non-existing key
+Turnaround Time: 73.0 ms
+
+
+Passed
+
+Test Case: remove - success case
+Turnaround Time: 17.0 ms
+
+
+Passed
+
+Test Case: remove - non-existing (key,value)
+Turnaround Time: 22.0 ms
+
+
+Passed
+
+Test Case: remove - key with the maximum length
+Turnaround Time: 25.0 ms
+
+
+Passed
+

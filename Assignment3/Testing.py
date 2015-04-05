@@ -1,12 +1,13 @@
 from communication import *
 from time import strftime
 # Run the test cases and print out the result
-def runTestCases(server_address,file_object):
+def runTestCases(servers,file_object):
     file_object.write("===============Integrity and Performance Testing===============\n")
     file_object.write("Time:"+strftime("%Y-%m-%d %H:%M:%S")+"\n")
     print "\n===============Integrity and Performance Testing===============\n"
-    file_object.write("Testing on "+server_address[0]+"\n")
-    print server_address
+    file_object.write("Testing on "+servers[0]+","+server[1]+","+serve[2]+"\n")
+    print servers
+    server_address = servers[0]
     # Invalid Command
     try:
         file_object.write("Test Case: Invalid Command\n")
@@ -398,11 +399,31 @@ def runTestCases(server_address,file_object):
         except AssertionError:
              file_object.write("\nFailed\n\n")
              print "\nFailed\n"            
-       
-     # shutdown - success case
+#        
+#      # shutdown - success case
+#     try:
+#          file_object.write("shutdown - success case\n")
+#          print "shutdown - success case"
+#          data = sendRequest(assembleMessage(4), server_address)
+#          if data:
+#             assert False
+#          else:
+#              print "No response received."
+#              data = sendRequest(assembleMessage(1,"max2223",",,,"), server_address)
+#              if data:
+#                assert False
+#              else:
+#                file_object.write("No response received.\n")
+#                file_object.write("\nPassed\n\n")
+#                print "\nPassed\n"
+#     except AssertionError:
+#          file_object.write("\nFailed\n\n")
+#          print "\nFailed\n"  
+
+    #Node failure
     try:
-         file_object.write("shutdown - success case\n")
-         print "shutdown - success case"
+         file_object.write("Node failure\n")
+         print "Node failure"
          data = sendRequest(assembleMessage(4), server_address)
          if data:
             assert False
@@ -417,5 +438,8 @@ def runTestCases(server_address,file_object):
                print "\nPassed\n"
     except AssertionError:
          file_object.write("\nFailed\n\n")
-         print "\nFailed\n"      
+         print "\nFailed\n"     
+         
+         
+         
     print "Testing result is saved in testing_result.txt."  

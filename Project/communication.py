@@ -50,7 +50,6 @@ def parseID (original, received):
 
 def parsePayload (received):
   r = list(received)
-
   for i in range(0, 16):
     r.pop(0)
   res_code = ord(r[0])
@@ -63,8 +62,9 @@ def parsePayload (received):
   payload = []
   for i in range(size):
     payload.append(r[i+2])
-
-  return res_code,payload
+  payload_msg = ''.join(payload)
+  print payload_msg
+  return res_code,payload_msg
 
 def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
   timeoutInterval = 1000
@@ -105,7 +105,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
         if file_object:
           # End timer and print Turnaround time
           endTimer(timer,file_object)
-        return data, server
+        return data
     except socket.error as serr:
       print serr
       if numTries > max_tries:
@@ -113,7 +113,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
         break
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
-  return None, None
+  return None
 
 def assembleMessage(commandNum,keyString=None,valueString=None):
     #Define each byte array with fixed size
@@ -154,17 +154,10 @@ def startTimer():
   #start timer
   return datetime.datetime.now()
     
-def endTimer(timer):
+def endTimer(timer,file_object):
   #end timer and calculate turnAroundTime
   turnAroundTime = (datetime.datetime.now()-timer)
   
   time = str(round((float(int(turnAroundTime.seconds)*1000000 + turnAroundTime.microseconds) /1000.0),2))
-  
-  return time
-  
-
-def printTurnAroundTime (time):
   print "\nTurnaround Time: "+time+" ms\n"
-  
-def writeTurnAroundTime (time,file_object):  
   file_object.write("Turnaround Time: "+time+" ms\n\n")
