@@ -53,7 +53,8 @@ def shutdown (request):
 def no_operation(request):
   print 'Operation: do not recognize'
   global results_queue
-  results_queue.put((request, 'do_not_recognize', None))
+  if not request['address'][0] in ring.ring.values():
+    results_queue.put((request, 'do_not_recognize', None))
 
 
 def pass_to_nearest_alive_node(message, successor):
@@ -153,12 +154,11 @@ def update_ring(request):
   ring.update_ring(ring_list)
 
 def transfer_keys(node_add):
-  new_node = ring.hash_key(node_add)
   for k in ring.node.data.keys():
     position = ring.get_node_with_replica(k)
-    if new_node in position:
+    if node_add in position:
       message=assembleMessage(1,k,ring.node.data[k])
-      sendRequest(message,(new_node,server_port),None,1)
+      sendRequest(message,(node_add,server_port),None,1)
     if not ring.node.host in position:
       ring.node.remove(k)
 
