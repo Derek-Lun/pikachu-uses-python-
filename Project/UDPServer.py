@@ -148,6 +148,7 @@ def pass_on_reply(request):
 
   if str(request['header']) in forwarded_req_address:
     results_queue.put((payload, forwarded_req_address[str(request['header'])]))
+    del forwarded_req_address[str(request['header'])]
 
 def update_ring(request):
   ring_list = request['payload'].split(',')
