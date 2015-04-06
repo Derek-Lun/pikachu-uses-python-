@@ -41,7 +41,7 @@ while operating == True:
             #Assemble a sending message
             message=assembleMessage(command,key,value)
                 
-            data = sendRequest(message, server_address)
+            data,server = sendRequest(message, server_address)
             
             if data:
               parsePayload(data)
