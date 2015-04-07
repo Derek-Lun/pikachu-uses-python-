@@ -11,23 +11,23 @@ def runTestCases(servers,file_object):
     server_address = (servers[0],7790)
     server_address2 = (servers[1],7790)
     server_address3 = (servers[2],7790)
-    # Invalid Command
-#     try:
-#         file_object.write("Test Case: Invalid Command\n")
-#         print "Test Case: Invalid Command"
-#         data = sendRequest(assembleMessage(5,"0","123"), server_address,file_object)
-#         if data:
-#           res_code,payload = parsePayload(data)
-#           assert res_code == 5
-#           file_object.write("\nPassed\n\n")
-#           print "\nPassed\n"
-#         else:
-#             file_object.write("No response received.\n")
-#             print "No response received."
-#             assert False
-#     except AssertionError:
-#         file_object.write("\nFailed\n\n")
-#         print "\nFailed\n"
+   # Invalid Command
+    try:
+        file_object.write("Test Case: Invalid Command\n")
+        print "Test Case: Invalid Command"
+        data = sendRequest(assembleMessage(5,"0","123"), server_address,file_object)
+        if data:
+          res_code,payload = parsePayload(data)
+          assert res_code == 5
+          file_object.write("\nPassed\n\n")
+          print "\nPassed\n"
+        else:
+            file_object.write("No response received.\n")
+            print "No response received."
+            assert False
+    except AssertionError:
+        file_object.write("\nFailed\n\n")
+        print "\nFailed\n"
 #     # Put - success case
 #     try:
 #         file_object.write("Test Case: put - success case\n")
@@ -141,31 +141,31 @@ def runTestCases(servers,file_object):
 #     except AssertionError:
 #         file_object.write("\nFailed\n\n")
 #         print "\nFailed\n"        
-# #     # Put - value with the maximum length\
-# #     try:
-# #         file_object.write("Test Case: put - value with the maximum length\n")
-# #         print "Test Case: put - value with the maximum length"
-# #         value = ""
-# #         for i in range(0,15000):#15000
-# #             value += '2'
-# #         #print "Value to be sent: " + value
-# #         print "length:"+str(len(value))
-# #         data = sendRequest(assembleMessage(1,'111',value), server_address,file_object)
-# #         if data:
-# #           res_code,payload = parsePayload(data)
-# #           assert res_code == 0
-# #           data = sendRequest(assembleMessage(2,'111'), server_address)
-# #           res_code,payload = parsePayload(data)
-# #           assert payload == value
-# #           file_object.write("\nPassed\n\n")
-# #           print "\nPassed\n"
-# #         else:
-# #             file_object.write("No response received.\n")
-# #             print "No response received."
-# #             assert False
-# #     except AssertionError:
-# #         file_object.write("\nFailed\n\n")
-# #         print "\nFailed\n"   
+    # Put - value with the maximum length\
+#     try:
+#         file_object.write("Test Case: put - value with the maximum length\n")
+#         print "Test Case: put - value with the maximum length"
+#         value = ""
+#         for i in range(0,15000):#15000
+#             value += '2'
+#         #print "Value to be sent: " + value
+#         print "length:"+str(len(value))
+#         data = sendRequest(assembleMessage(1,'111',value), server_address,file_object)
+#         if data:
+#           res_code,payload = parsePayload(data)
+#           assert res_code == 0
+#           data = sendRequest(assembleMessage(2,'111'), server_address)
+#           res_code,payload = parsePayload(data)
+#           assert payload == value
+#           file_object.write("\nPassed\n\n")
+#           print "\nPassed\n"
+#         else:
+#             file_object.write("No response received.\n")
+#             print "No response received."
+#             assert False
+#     except AssertionError:
+#         file_object.write("\nFailed\n\n")
+#         print "\nFailed\n"   
 #                   
 #     # Put without overwrite - success case
 #     try:
@@ -421,34 +421,34 @@ def runTestCases(servers,file_object):
 #          file_object.write("\nFailed\n\n")
 #          print "\nFailed\n"  
 
-    # Concurrency put
-    try:
-        file_object.write("Test Case: Concurrency put\n")
-        print "Test Case: Concurrency put"
-
-        msgs = [assembleMessage(1,"input","qwerty"),assembleMessage(1,"input","poiuyt"),assembleMessage(1,"input","mnbvcxz")]
-        threads = [threading.Thread(target=sendRequest, args=(msg,server_address)) for msg in msgs]
-        for t in threads:
-            t.start()
-        time.sleep(2)
-        sendRequest(assembleMessage(1,"input","final"),server_address)
-        data =  sendRequest(assembleMessage(2,"input"), server_address)
-        if data:
-            res_code,payload = parsePayload(data)
-            assert payload == "final"
-            file_object.write("\nPassed\n\n")
-            print "\nPassed\n"
-        else:
-            file_object.write("No response received.\n")
-            print "No response received."
-            assert False 
-        
-    except AssertionError:
-        file_object.write("\nFailed\n\n")
-        print "\nFailed\n"
-    except thread.error:
-        print "Error: unable to start thread"
-        
+#     # Concurrency put
+#     try:
+#         file_object.write("Test Case: Concurrency put\n")
+#         print "Test Case: Concurrency put"
+#  
+#         msgs = [assembleMessage(1,"input","qwerty"),assembleMessage(1,"input","poiuyt"),assembleMessage(1,"input","mnbvcxz")]
+#         threads = [threading.Thread(target=sendRequest, args=(msg,server_address)) for msg in msgs]
+#         for t in threads:
+#             t.start()
+#         time.sleep(2)
+#         sendRequest(assembleMessage(1,"input","final"),server_address)
+#         data =  sendRequest(assembleMessage(2,"input"), server_address)
+#         if data:
+#             res_code,payload = parsePayload(data)
+#             assert payload == "final"
+#             file_object.write("\nPassed\n\n")
+#             print "\nPassed\n"
+#         else:
+#             file_object.write("No response received.\n")
+#             print "No response received."
+#             assert False 
+#          
+#     except AssertionError:
+#         file_object.write("\nFailed\n\n")
+#         print "\nFailed\n"
+#     except thread.error:
+#         print "Error: unable to start thread"
+#              
 #     #Cross server
 #     try:
 #          file_object.write("Cross server\n")

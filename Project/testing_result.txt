@@ -1,7 +1,13 @@
 ===============Integrity and Performance Testing===============
-Time:2015-04-04 16:34:20
+Time:2015-04-06 22:43:35
 Testing on planetlab1.cs.ubc.ca,plonk.cs.uwaterloo.ca,cs-planetlab3.cs.surrey.sfu.ca
-Test Case: Concurrency put
+Test Case: Invalid Command
+Turnaround Time: 55.0 ms
+
 
 Passed
 
+===============Integrity and Performance Testing===============
+Time:2015-04-06 22:43:35
+Testing on vn4.cse.wustl.edu,,planetlab-01.vt.nodes.planet-lab.org
+Test Case: Invalid Command
