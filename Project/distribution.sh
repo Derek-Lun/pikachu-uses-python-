@@ -8,7 +8,8 @@ do
     echo ========================
     echo ${node}
     ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo rm -rf *; mkdir Group10"
-    scp -i ~/.ssh/id_rsa node.txt ubc_eece411_5@${node}:.
+    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:node.txt
+    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:Group10/node.txt
     scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
     scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
     ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '* * * * * ~/make-run.sh >> ~/what.out' | crontab"

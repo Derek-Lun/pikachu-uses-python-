@@ -16,6 +16,8 @@ NUM_TRIES = 1
 
 server_list = [line.strip() for line in open('node.txt')]
 
+print server_list
+
 results_queue = Queue()
 cache_request = {}
 forwarded_req_address = {}
@@ -283,12 +285,12 @@ def routeMessage(raw_data, request):
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
       local = True
-      if (request['command'] == 2) and not ring.node.key_exist(request['key']) and not (len(ring.ring.values) == 1):
+      if (request['command'] == 2) and not ring.node.key_exist(request['key']):
         local = False
 
     package_forward(raw_data, request, target_nodes, local)
 
-  if (request['command'] not in value_op) or local:
+  if (request['command'] not in value_op) or local or (len(ring.ring.values()) == 1):
     task = Thread(target=operation, args=(request,))
     task.start()
     task.join()
