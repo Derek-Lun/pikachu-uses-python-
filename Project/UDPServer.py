@@ -283,7 +283,7 @@ def routeMessage(raw_data, request):
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
       local = True
-      if (request['command'] == 2) and not ring.node.key_exist(request['key']):
+      if (request['command'] == 2) and not ring.node.key_exist(request['key']) and not (len(ring.ring.values) == 1):
         local = False
 
     package_forward(raw_data, request, target_nodes, local)
