@@ -1,3 +1,7 @@
+planetlab1.cs.ubc.ca
+plonk.cs.uwaterloo.ca
+planetlab03.cs.washington.edu
+
 planetlab2.csee.usf.edu
 pl-node-1.csl.sri.com
 planetlab-03.cs.princeton.edu
@@ -100,3 +104,10 @@ pl1.eng.monash.edu.au
 pl2.sos.info.hiroshima-cu.ac.jp
 planetlab1.cs.ucla.edu
 planetlab-2.sjtu.edu.cn
+planetlab1.cs.unc.edu
+planetlabone.ccs.neu.edu
+planetlab1.cs.otago.ac.nz
+planetlab5.ie.cuhk.edu.hk
+vn4.cse.wustl.edu
+planetlab-01.vt.nodes.planet-lab.org
+planetlab1.fit.vutbr.cz

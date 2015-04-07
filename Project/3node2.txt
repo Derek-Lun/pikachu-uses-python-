@@ -1,0 +1,3 @@
+vn4.cse.wustl.edu:7790
+planetlab-01.vt.nodes.planet-lab.org:7790
+planetlab1.fit.vutbr.cz:7790

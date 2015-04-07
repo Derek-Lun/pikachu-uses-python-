@@ -105,7 +105,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
         if file_object:
           # End timer and print Turnaround time
           endTimer(timer,file_object)
-        return data
+        return data, server
     except socket.error as serr:
       print serr
       if numTries > max_tries:
@@ -113,7 +113,7 @@ def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
         break
       timeoutInterval *= 2
       print 'Timeout. Doubling timeout to %s ms.' % timeoutInterval
-  return None
+  return None, None
 
 def assembleMessage(commandNum,keyString=None,valueString=None):
     #Define each byte array with fixed size
