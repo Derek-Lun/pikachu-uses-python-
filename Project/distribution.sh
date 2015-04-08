@@ -7,12 +7,15 @@ cat ${file} | while read node
 do 
     echo ========================
     echo ${node}
-    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo rm -rf *; mkdir Group10"
-    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:node.txt
-    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:Group10/node.txt
-    scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
-    scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
-    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '* * * * * ~/make-run.sh >> ~/what.out' | crontab"
+    #ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo yum groupinstall -y \"Development tools\";sudo yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel;mkdir ~/python;wget http://www.python.org/ftp/python/2.7.2/Python-2.7.2.tgz;tar zxfv Python-2.7.2.tgz;find ~/python -type d | xargs chmod 0755;cd Python-2.7.2;./configure --prefix=/home/user/python;make;sudo make altinstall"
+
+    #ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo rm -rf *; mkdir Group10"
+    #scp -i ~/.ssh/id_rsa node.txt ubc_eece411_5@${node}:.
+    #scp -i ~/.ssh/id_rsa node.txt ubc_eece411_5@${node}:Group10/.
+    #scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
+    #scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
+    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '0 * * * * ~/make-run.sh >> ~/what.out' | crontab"
+
     # scp -i ~/.ssh/id_rsa dist/UDPServer_withData/* ubc_eece411_5@${node}:Group10/.
     # scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "chmod +x ~/Group10/UDPServer_withData; echo '*/5 * * * * ~/Group10/UDPServer_withData' | sudo crontab; ~/Group10/UDPServer &"
