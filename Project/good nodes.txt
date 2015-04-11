@@ -1,0 +1,12 @@
+pli1-pa-2.hpl.hp.com
+pli1-pa-3.hpl.hp.com
+pli1-pa-4.hpl.hp.com
+plink.cs.uwaterloo.ca
+plnode-03.gpolab.bbn.com
+plnode-04.gpolab.bbn.com
+pluto.cs.brown.edu
+ricepl-1.cs.rice.edu
+ricepl-2.cs.rice.edu
+ricepl-4.cs.rice.edu
+ricepl-5.cs.rice.edu
+vn5.cse.wustl.edu
