@@ -65,9 +65,9 @@ def pass_to_nearest_alive_node(message, successor):
   if current_host_name in server_list:
     current_host_index = server_list.index(current_host_name)
 
-  reply = None;
+  reply = None
 
-  index = current_host_index;
+  index = current_host_index
 
   while not reply:
     if successor:
@@ -76,11 +76,11 @@ def pass_to_nearest_alive_node(message, successor):
       index = (index - 1) % len(server_list)
 
     if index == current_host_index:
-      break;
+      break
 
-    next = (server_list[index], server_port);
+    next = (server_list[index], server_port)
 
-    reply, address = sendRequest(message,next,None,NUM_TRIES);
+    reply, address = sendRequest(message,next,None,NUM_TRIES)
 
   return reply, address
 
@@ -236,7 +236,7 @@ def createReply (request,status, value = None):
   else:
     reply.extend(struct.pack('<h', 0))
 
-  reply_str = "";
+  reply_str = ""
   for i in reply:
     reply_str = reply_str + struct.pack('<B',i)
 
@@ -268,7 +268,7 @@ def package_forward (raw_data, request, target_nodes, local):
   forward.extend(struct.pack('<h', len(rdata)))
   forward.extend(rdata)
 
-  forward_str = "";
+  forward_str = ""
   for x in forward:
     forward_str = forward_str + struct.pack('<B', x)
 
@@ -307,12 +307,12 @@ def checkSuccessor():
   if reply:
     next_alive_index = server_list.index(socket.getfqdn(address[0]))
 
-    ring.add_node(address[0]);
+    ring.add_node(address[0])
 
-    transverse_index = next_alive_index - current_host_index;
+    transverse_index = next_alive_index - current_host_index
 
     if transverse_index < 0:
-      number_of_successive_nodes_dead = len(server_list) + transverse_index;
+      number_of_successive_nodes_dead = len(server_list) + transverse_index
     else:
       number_of_successive_nodes_dead = transverse_index
 
@@ -327,7 +327,6 @@ def checkSuccessor():
 
   print ring.ring.values()
 
-
 def initialize():
   global ring
 
@@ -337,14 +336,20 @@ def initialize():
 def check_status():
   global check_status_time
   global operating
-  while operating == True:    
+  while operating == True:
+    print "before sleep"
+    print time.time()
     time.sleep(check_status_time)
+    print "after sleep"
+    print time.time()
     checkSuccessor()
 
 def reply_response():
   global results_queue
   while operating == True:
     if not results_queue.empty():
+      print "queue size"
+      print results_queue.qsize()
       result = results_queue.get()
       if len(result) > 2:
         reply = createReply(result[0], result[1], result[2])
