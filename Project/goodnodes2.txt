@@ -1,7 +1,6 @@
 planetlab1.cs.ubc.ca
 plonk.cs.uwaterloo.ca
 planetlab03.cs.washington.edu
-
 planetlab2.csee.usf.edu
 pl-node-1.csl.sri.com
 planetlab-03.cs.princeton.edu

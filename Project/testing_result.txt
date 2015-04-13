@@ -1,14 +1,76 @@
 ===============Integrity and Performance Testing===============
-Time:2015-04-10 22:33:56
+Time:2015-04-13 12:16:53
 Testing on planetlab1.cs.ubc.ca,plonk.cs.uwaterloo.ca,cs-planetlab3.cs.surrey.sfu.ca
 Test Case: Invalid Command
-No response received.
+Turnaround Time: 36.0 ms
 
-Failed
+
+Passed
 
 Test Case: put - success case
-No response received.
+Turnaround Time: 16.0 ms
 
-Failed
+
+Passed
 
 Test Case: put - empty key
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put - empty value
+Turnaround Time: 21.0 ms
+
+
+Passed
+
+Test Case: put - existing key
+Turnaround Time: 21.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - success case
+Turnaround Time: 14.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - empty key
+Turnaround Time: 15.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - empty value
+Turnaround Time: 18.0 ms
+
+
+Passed
+
+Test Case: put without overwrite - existing key
+Turnaround Time: 15.0 ms
+
+
+Passed
+
+Test Case: get - non-existing key
+Turnaround Time: 14.0 ms
+
+
+Passed
+
+Test Case: remove - success case
+Turnaround Time: 16.0 ms
+
+
+Passed
+
+Test Case: remove - non-existing (key,value)
+Turnaround Time: 19.0 ms
+
+
+Passed
+
+shutdown - success case

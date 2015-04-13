@@ -66,19 +66,20 @@ def parsePayload (received):
   print payload_msg
   return res_code,payload_msg
 
+
+def addRequestID(message, port):
+  data = requestID(port)
+
+  data.extend(message)
+
+  return data;
+
 def sendRequest (dataPayload, server_address,file_object = None, max_tries=3):
   timeoutInterval = 1000
   numTries = 1
   done = False
 
-  data = requestID(server_address[1])
-
-  rID = bytearray()
-
-  for i in data:
-    rID.append(i);
-    
-  data.extend(dataPayload)
+  data = addRequestID(dataPayload, server_address[1])    
 
   while (not done) and numTries <= max_tries:
     try:

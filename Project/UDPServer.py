@@ -10,13 +10,17 @@ from node import *
 from ring import *
 from communication import *
 import sys
+import datetime
 
 PASS_ON_VALUE = 2
 NUM_TRIES = 1
 
-server_list = [line.strip() for line in open('node.txt')]
+time_to_update = 60 * 10
 
-print server_list
+central_node_hostname = 'ec2-54-69-57-23.us-west-2.compute.amazonaws.com'
+central_node_port = 8888
+
+server_list = [line.strip() for line in open('node.txt')]
 
 results_queue = Queue()
 cache_request = {}
@@ -58,58 +62,13 @@ def no_operation(request):
   if not request['address'][0] in ring.ring.values():
     results_queue.put((request, 'do_not_recognize', None))
 
-
-def pass_to_nearest_alive_node(message, successor):
-  current_host_name = socket.getfqdn()
-
-  if current_host_name in server_list:
-    current_host_index = server_list.index(current_host_name)
-
-  reply = None;
-
-  index = current_host_index;
-
-  while not reply:
-    if successor:
-      index = (index + 1) % len(server_list)
-    else:
-      index = (index - 1) % len(server_list)
-
-    if index == current_host_index:
-      break;
-
-    next = (server_list[index], server_port);
-
-    reply, address = sendRequest(message,next,None,NUM_TRIES);
-
-  return reply, address
-
-
 def add_node(request):
   global ring
 
   node_add = request['payload']
   
-  ring.add_node(request['address'][0])
-
-  data = None
-  local_host_name = socket.getfqdn()
-
-  if ring.node.host != node_add:
-
-    message = assembleMessage(34, None, node_add)
-    reply = pass_to_nearest_alive_node(message, True)
-
+  if (ring.node.host != node_add) and not (node_add in ring.ring.values()):
     ring.add_node(node_add)
-
-    if request['address'][0] == node_add:
-      request['address'] = list(request['address'])
-      request['address'][1] = server_port
-      request['address'] = tuple(request['address'])
-      ring_list = ','.join(map(str, ring.ring.values()))
-      results_queue.put((request, 'update_ring', ring_list))
-    else:
-      results_queue.put((request, 'success', None))
 
     transfer_keys(node_add)
 
@@ -117,17 +76,8 @@ def remove_node(request):
   global ring
 
   delete_node = request['payload']
-  ring.add_node(request['address'][0])
-
   if ring.node.host != delete_node and (delete_node in ring.ring.values()):
-    ring.remove_node(delete_node)
-
-    results_queue.put((request, 'success', None))
-
-    message = assembleMessage(38, None, delete_node)
-
-    reply = pass_to_nearest_alive_node(message, False)
-   
+    ring.remove_node(delete_node)  
 
 def forwarded_request(request):
   global results_queue
@@ -166,7 +116,8 @@ def transfer_keys(node_add):
       ring.node.remove(k)
 
 def report_alive(request):
-  results_queue.put((request,'alive', None))
+  print ring.ring.values()
+  send_alive(request['address'][1])
 
 command = {
   1 : ring.node.put,
@@ -282,6 +233,8 @@ def routeMessage(raw_data, request):
   if request['command'] in value_op:
     target_nodes = ring.get_node_with_replica(request['key'])
 
+    print target_nodes
+
     if ring.node.host in target_nodes:
       target_nodes.remove(ring.node.host)
       local = True
@@ -295,52 +248,11 @@ def routeMessage(raw_data, request):
     task.start()
     task.join()
 
-def checkSuccessor():
-  global ring
-
-  local_host_name = socket.getfqdn()
-  current_host_index = server_list.index(local_host_name)
-
-  message = assembleMessage(33)
-  reply, address = pass_to_nearest_alive_node(message, True)
-
-  if reply:
-    next_alive_index = server_list.index(socket.getfqdn(address[0]))
-
-    ring.add_node(address[0]);
-
-    transverse_index = next_alive_index - current_host_index;
-
-    if transverse_index < 0:
-      number_of_successive_nodes_dead = len(server_list) + transverse_index;
-    else:
-      number_of_successive_nodes_dead = transverse_index
-
-    for index in range(1, number_of_successive_nodes_dead):
-      i = (current_host_index+index) % len(server_list)
-      dest_ip = socket.gethostbyname(server_list[i])
-      msg = assembleMessage(38, None, dest_ip)
-      ring.remove_node(dest_ip)
-      rply = pass_to_nearest_alive_node(msg, False)
-  else:
-    ring.clear_ring()
-
-  print ring.ring.values()
-
-
-def initialize():
-  global ring
-
+def send_alive(port):
   message = assembleMessage(34, None, ring.node.host)
-  pass_to_nearest_alive_node(message, True)
-
-def check_status():
-  global check_status_time
-  global operating
-  while operating == True:    
-    time.sleep(check_status_time)
-    checkSuccessor()
-
+  data = addRequestID(message, server_port)
+  sock.sendto(data, (central_node_hostname, port))
+  
 def reply_response():
   global results_queue
   while operating == True:
@@ -354,6 +266,10 @@ def reply_response():
         sock.sendto(result[0], result[1])
         cacheMsg(result[0][0:16], result[0])
 
+def resync_nodes():
+  send_alive(central_node_port);
+  time.sleep(time_to_update);
+
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -363,15 +279,13 @@ operating = True
 
 print "Listening on %s" % server_port
 
-initialize()
+check_status = Thread(target=resync_nodes)
+check_status.daemon =True
+check_status.start()
 
-status_check = Thread(target=check_status)
-status_check.daemon =True
-status_check.start()
-
-status_check = Thread(target=reply_response)
-status_check.daemon =True
-status_check.start()
+reply_thread = Thread(target=reply_response)
+reply_thread.daemon =True
+reply_thread.start()
 
 while operating == True:
   try:
