@@ -187,7 +187,7 @@ def createReply (request,status, value = None):
   else:
     reply.extend(struct.pack('<h', 0))
 
-  reply_str = "";
+  reply_str = ""
   for i in reply:
     reply_str = reply_str + struct.pack('<B',i)
 
@@ -219,7 +219,7 @@ def package_forward (raw_data, request, target_nodes, local):
   forward.extend(struct.pack('<h', len(rdata)))
   forward.extend(rdata)
 
-  forward_str = "";
+  forward_str = ""
   for x in forward:
     forward_str = forward_str + struct.pack('<B', x)
 
@@ -253,10 +253,13 @@ def send_alive(port):
   data = addRequestID(message, server_port)
   sock.sendto(data, (central_node_hostname, port))
   
+
 def reply_response():
   global results_queue
   while operating == True:
     if not results_queue.empty():
+      print "queue size"
+      print results_queue.qsize()
       result = results_queue.get()
       if len(result) > 2:
         reply = createReply(result[0], result[1], result[2])
