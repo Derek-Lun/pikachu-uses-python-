@@ -4,6 +4,7 @@ from Queue import Queue
 import time
 from threading import Thread
 from threading import Timer
+import json
 
 server_port = 8888
 alive_nodes = {}
@@ -32,6 +33,24 @@ response_status = {
   'update_ring': 37,
   'report_death': 38
 }
+
+def output_log():
+  global alive_nodes
+  all_nodes = [line.strip() for line in open('node.txt')]
+  nodes_status = []
+  for node in all_nodes:
+    temp_data = {}
+    temp_data['hostname'] = node
+
+    temp_data['alive'] = False
+    if node in alive_nodes.keys():
+      temp_data['alive'] = True
+    
+    nodes_status.append(temp_data)
+
+  log_file = open('log.json', 'w')
+  log_file.write(json.dumps(nodes_status))
+  log_file.close()
 
 def send_node_alive_info_to_other_nodes(request):
   for ip in alive_nodes.values():
@@ -65,6 +84,8 @@ def node_is_alive(request, initial = True):
     if initial:
       initial_ring_update(request)
 
+  output_log()
+
 def node_is_dead(hostname):
   global alive_nodes
 
@@ -74,6 +95,8 @@ def node_is_dead(hostname):
     del alive_nodes[hostname]
 
     send_node_death_info_to_other_nodes(ip_address)
+
+  output_log()
 
 command = {
   34 : node_is_alive
