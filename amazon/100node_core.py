@@ -54,11 +54,13 @@ def output_log():
   log_file.close()
 
 def send_node_alive_info_to_other_nodes(request):
+  output_log()
   for ip in alive_nodes.values():
     if ip != request['address'][0]:
       results_queue.put((request, 'alive', request['address'][0], ip))
 
 def send_node_death_info_to_other_nodes(ip_address):
+  output_log()
   message = assembleMessage(38, None, ip_address)
   data = addRequestID(message, child_port)
   for ip in alive_nodes.values():
@@ -85,8 +87,6 @@ def node_is_alive(request, initial = True):
     if initial:
       initial_ring_update(request)
 
-  output_log()
-
 def node_is_dead(hostname):
   global alive_nodes
 
@@ -96,8 +96,6 @@ def node_is_dead(hostname):
     del alive_nodes[hostname]
 
     send_node_death_info_to_other_nodes(ip_address)
-
-  output_log()
 
 command = {
   34 : node_is_alive
