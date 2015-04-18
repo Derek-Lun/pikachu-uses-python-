@@ -39,22 +39,20 @@ def output_log():
   all_nodes = [line.strip() for line in open('100node.txt')]
   nodes_status = []
   for node in all_nodes:
-    print "next node"
     temp_data = {}
     temp_data['hostname'] = node
 
     temp_data['alive'] = False
     if node in alive_nodes.keys():
       temp_data['alive'] = True
-    
+
     nodes_status.append(temp_data)
 
-  log_file = open('../../var/www/http/100node_log.json', 'w+')
+  log_file = open('../../var/www/html/100node_log.json', 'w+')
   log_file.write(json.dumps(nodes_status))
   log_file.close()
 
 def send_node_alive_info_to_other_nodes(request):
-  output_log()
   for ip in alive_nodes.values():
     if ip != request['address'][0]:
       results_queue.put((request, 'alive', request['address'][0], ip))
@@ -72,17 +70,20 @@ def initial_ring_update(request):
 
 def node_is_alive(request, initial = True):
   global alive_nodes
-
+  update = False
   hostname = socket.getfqdn(request['address'][0]).lower()
   ip_address = request['address'][0]
 
   if hostname in server_list:
     if ip_address not in alive_nodes.values():
+      update = True
       send_node_alive_info_to_other_nodes(request)
 
     alive_nodes[hostname] = ip_address
-
     ring_list = ','.join(map(str, alive_nodes.values()))
+
+    if update:
+      output_log()
 
     if initial:
       initial_ring_update(request)
@@ -174,7 +175,7 @@ def check_status():
     time.sleep(sleep_time)
 
     message = assembleMessage(33)
-    #print "checking status of", server_list[index]
+    print "checking status of", server_list[index]
     node_address =  (server_list[index], child_port)
     reply, address = sendRequest(message,node_address,None,NUM_TRIES);
 
@@ -209,8 +210,8 @@ while operating == True:
     rdata, address = sock.recvfrom(16384)
 
     req = parseCommand(rdata, address)
-    #print "Received: ",
-    #print req
+    print "Received: ",
+    print req
 
     operation(req)
 

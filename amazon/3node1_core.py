@@ -37,10 +37,6 @@ response_status = {
 def output_log():
   global alive_nodes
   all_nodes = [line.strip() for line in open('3node1.txt')]
-  # print "all nodes"
-  # print all_nodes
-  # print "alive nodes"
-  # print alive_nodes
   nodes_status = []
   for node in all_nodes:
     temp_data = {}
@@ -49,8 +45,7 @@ def output_log():
     temp_data['alive'] = False
     if node in alive_nodes.keys():
       temp_data['alive'] = True
-    # print "temp data"
-    # print temp_data
+
     nodes_status.append(temp_data)
 
   log_file = open('../../var/www/html/3node1_log.json', 'w+')
