@@ -1,21 +1,21 @@
-pllab1.kamgu.ru 0
-pli1-br-2.hpl.hp.com 0
-pllab2.kamgu.ru 0
-planetlab5.cs.duke.edu 0
-planetlab-2.rml.ryerson.ca 0
-planetlab2.aub.edu.lb 0
-planetlab1.aub.edu.lb 0
-planetlab-1.vuse.vanderbilt.edu 0
-planetlab2.iin-bit.com.cn 0
-planetlab2.olsztyn.rd.tp.pl 0
-pl2.bit.uoit.ca -1
-planetlab-1.rml.ryerson.ca 0
-planetlab2.cs.unb.ca 0
-planetlab1.engr.ccny.cuny.edu 0
-planet-lab.iki.rssi.ru 0
-plab2.psgtech.ac.in 0
-planetlab1.cs.unb.ca 0
-itchy.cs.uga.edu 0
+pllab1.kamgu.ru
+pli1-br-2.hpl.hp.com
+pllab2.kamgu.ru
+planetlab5.cs.duke.edu
+planetlab-2.rml.ryerson.ca
+planetlab2.aub.edu.lb
+planetlab1.aub.edu.lb
+planetlab-1.vuse.vanderbilt.edu
+planetlab2.iin-bit.com.cn
+planetlab2.olsztyn.rd.tp.pl
+pl2.bit.uoit.ca
+planetlab-1.rml.ryerson.ca
+planetlab2.cs.unb.ca
+planetlab1.engr.ccny.cuny.edu
+planet-lab.iki.rssi.ru
+plab2.psgtech.ac.in
+planetlab1.cs.unb.ca
+itchy.cs.uga.edu
 scratchy.cs.uga.edu
 planetlab2.engr.ccny.cuny.edu
 planetlab1.nowogrodzka.rd.tp.pl

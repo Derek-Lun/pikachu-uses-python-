@@ -1,3 +1,0 @@
-vn4.cse.wustl.edu
-planetlab-01.vt.nodes.planet-lab.org
-planetlab1.fit.vutbr.cz

@@ -17,6 +17,9 @@ results_queue = Queue()
 
 server_list = [line.strip() for line in open('node.txt')]
 
+for i in range(len(server_list)):
+  server_list[i] = socket.getfqdn(socket.gethostbyname(server_list[i])).lower()
+
 print server_list
 
 response_status = {
@@ -36,19 +39,19 @@ response_status = {
 
 def output_log():
   global alive_nodes
-  all_nodes = [line.strip() for line in open('node.txt')]
+
   nodes_status = []
-  for node in all_nodes:
+  for node in server_list:
     temp_data = {}
     temp_data['hostname'] = node
 
     temp_data['alive'] = False
     if node in alive_nodes.keys():
       temp_data['alive'] = True
-    
+
     nodes_status.append(temp_data)
 
-  log_file = open('log.json', 'w')
+  log_file = open('../../var/www/html/100node_log.json', 'w+')
   log_file.write(json.dumps(nodes_status))
   log_file.close()
 
@@ -58,6 +61,7 @@ def send_node_alive_info_to_other_nodes(request):
       results_queue.put((request, 'alive', request['address'][0], ip))
 
 def send_node_death_info_to_other_nodes(ip_address):
+  output_log()
   message = assembleMessage(38, None, ip_address)
   data = addRequestID(message, child_port)
   for ip in alive_nodes.values():
@@ -69,22 +73,23 @@ def initial_ring_update(request):
 
 def node_is_alive(request, initial = True):
   global alive_nodes
-
+  update = False
   hostname = socket.getfqdn(request['address'][0]).lower()
   ip_address = request['address'][0]
 
   if hostname in server_list:
     if ip_address not in alive_nodes.values():
-      send_node_alive_info_to_other_nodes(request)
+      update = True
 
     alive_nodes[hostname] = ip_address
-
     ring_list = ','.join(map(str, alive_nodes.values()))
+
+    if update:
+      output_log()      
+      send_node_alive_info_to_other_nodes(request)
 
     if initial:
       initial_ring_update(request)
-
-  output_log()
 
 def node_is_dead(hostname):
   global alive_nodes
@@ -95,8 +100,6 @@ def node_is_dead(hostname):
     del alive_nodes[hostname]
 
     send_node_death_info_to_other_nodes(ip_address)
-
-  output_log()
 
 command = {
   34 : node_is_alive
