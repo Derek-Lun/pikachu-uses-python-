@@ -198,18 +198,23 @@ def cacheMsg(id,reply = None):
   if reply:
     if not id in cache_request:
         cache_request.update({id: (reply, time.time())})
-
+        print "Cached request"
   else:
     data = cache_request.get(id)
     if data:
+      print "Using Cached response: " + data[0]
       return data[0]
 
 def removeCache():
   while operating == True:
+   try:
     for id, data in cache_request.iteritems():
       if time.time() > data[1] + 5:
+	print "Removing cache: " + id 
         cache_request.pop(id, None)
     time.sleep(1)
+   except RuntimeError:
+	print "Removed cache"
 
 def package_forward (raw_data, request, target_nodes, local):
   global forwarded_req_address
