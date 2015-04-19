@@ -197,16 +197,19 @@ def createReply (request,status, value = None):
 def cacheMsg(id,reply = None):
   if reply:
     if not id in cache_request:
-        cache_request.update({id: reply})
-        t = Timer(5.0, removeCache,[id])
-        t.start()
-  else:
-    return cache_request.get(id)
+        cache_request.update({id: (reply, time.time())})
 
-def removeCache(id):
-  if id in cache_request:
-    #print "Removing cache with id: " + binascii.hexlify(id)
-    cache_request.pop(id, None)
+  else:
+    data = cache_request.get(id)
+    if data:
+      return data[0]
+
+def removeCache():
+  while operating == True:
+    for id, data in cache_request.iteritems():
+      if time.time() > data[1] + 5:
+        cache_request.pop(id, None)
+    time.sleep(1)
 
 def package_forward (raw_data, request, target_nodes, local):
   global forwarded_req_address
@@ -252,7 +255,6 @@ def send_alive(port):
   message = assembleMessage(34, None, ring.node.host)
   data = addRequestID(message, server_port)
   sock.sendto(data, (central_node_hostname, port))
-  
 
 def reply_response():
   global results_queue
@@ -270,8 +272,8 @@ def reply_response():
         cacheMsg(result[0][0:16], result[0])
 
 def resync_nodes():
-  send_alive(central_node_port);
-  time.sleep(time_to_update);
+  send_alive(central_node_port)
+  time.sleep(time_to_update)
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -287,6 +289,10 @@ check_status.daemon =True
 check_status.start()
 
 reply_thread = Thread(target=reply_response)
+reply_thread.daemon =True
+reply_thread.start()
+
+reply_thread = Thread(target=removeCache)
 reply_thread.daemon =True
 reply_thread.start()
 
