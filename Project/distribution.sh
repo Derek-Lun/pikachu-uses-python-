@@ -8,17 +8,17 @@ do
     echo ========================
     echo ${node}
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sh ~/make-run.sh  >> ~/what.out"
-    # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "python2.7 -V"
-    # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "crontab -l"
+    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "python2.7 -V;crontab -l;sudo /sbin/service crond start "
+    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "crontab -l"
 
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "sudo rm -rf *; mkdir Group10; killall python2.7"
     # # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo ''  | crontab"
 
-    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:node.txt
-    scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:Group10/node.txt
-    scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
-    scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
-    ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '0 * * * * sh ~/make-run.sh >> ~/what.out 2>&1'  | crontab"
+    # scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:node.txt
+    # scp -i ~/.ssh/id_rsa ${file} ubc_eece411_5@${node}:Group10/node.txt
+    # scp -i ~/.ssh/id_rsa *.py ubc_eece411_5@${node}:Group10/.
+    # scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
+    # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "echo '45 * * * * sh ~/make-run.sh >> ~/what.out 2>&1'  | crontab"
     # scp -i ~/.ssh/id_rsa dist/UDPServer_withData/* ubc_eece411_5@${node}:Group10/.
     # scp -i ~/.ssh/id_rsa make-run.sh ubc_eece411_5@${node}:.
     # ssh -n -i ~/.ssh/id_rsa -l ubc_eece411_5 ${node} "chmod +x ~/Group10/UDPServer_withData; echo '*/5 * * * * ~/Group10/UDPServer_withData' | sudo crontab; ~/Group10/UDPServer &"
