@@ -18,7 +18,7 @@ NUM_TRIES = 1
 time_to_update = 60 * 10
 
 central_node_hostname = 'ec2-54-69-57-23.us-west-2.compute.amazonaws.com'
-central_node_port = 8889
+central_node_port = 8888
 
 server_list = [line.strip() for line in open('node.txt')]
 
