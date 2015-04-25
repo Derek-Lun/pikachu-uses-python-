@@ -97,9 +97,6 @@ plab3.eece.ksu.edu
 planet1.pnl.nitech.ac.jp
 planetlab-n2.wand.net.nz
 planetlab2.csee.usf.edu
-planetlab3.mini.pw.edu.pl
 pl4.cs.unm.edu
 planetlab-js2.cert.org.cn
 pl2.sos.info.hiroshima-cu.ac.jp
-planetlab1.otemachi.wide.ad.jp
-planetlab1.cs.ucla.edu
