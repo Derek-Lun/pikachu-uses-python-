@@ -28,7 +28,6 @@ planetlab1.cs.uml.edu:7790
 planetlab2.ustc.edu.cn:7790
 ebb.colgate.edu:7790
 planetlab1.ucsd.edu:7790
-planet-plc-1.mpi-sws.org:7790
 plink.cs.uwaterloo.ca:7790
 pli1-pa-3.hpl.hp.com:7790
 pli1-pa-2.hpl.hp.com:7790
@@ -89,7 +88,6 @@ node2.planetlab.mathcs.emory.edu:7790
 planetlab6.goto.info.waseda.ac.jp:7790
 pl1.eng.monash.edu.au:7790
 planetlab1.acis.ufl.edu:7790
-planetlab1.cs.uiuc.edu:7790
 75-130-96-13.static.oxfr.ma.charter.com:7790
 planetlab1.csee.usf.edu:7790
 planetlab4.goto.info.waseda.ac.jp:7790

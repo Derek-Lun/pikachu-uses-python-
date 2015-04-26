@@ -28,7 +28,6 @@ planetlab1.cs.uml.edu
 planetlab2.ustc.edu.cn
 ebb.colgate.edu
 planetlab1.ucsd.edu
-planet-plc-1.mpi-sws.org
 plink.cs.uwaterloo.ca
 pli1-pa-3.hpl.hp.com
 pli1-pa-2.hpl.hp.com
@@ -89,7 +88,6 @@ node2.planetlab.mathcs.emory.edu
 planetlab6.goto.info.waseda.ac.jp
 pl1.eng.monash.edu.au
 planetlab1.acis.ufl.edu
-planetlab1.cs.uiuc.edu
 75-130-96-13.static.oxfr.ma.charter.com
 planetlab1.csee.usf.edu
 planetlab4.goto.info.waseda.ac.jp

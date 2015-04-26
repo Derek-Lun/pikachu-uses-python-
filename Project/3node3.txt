@@ -1,3 +1,0 @@
-planetlabone.ccs.neu.edu:7790
-planetlab1.cs.otago.ac.nz:7790
-planetlab5.ie.cuhk.edu.hk:7790
